@@ -4,23 +4,14 @@ import os
 import unittest
 import tempfile
 
-from .bandit import BanditProducer
+from gen import engine_pb2
+from gen import issue_pb2
+from gen import config_pb2
+from producers.bandit.bandit import BanditProducer
+from producers.producer_test_utils import MockConfig
 
 from google.protobuf.timestamp_pb2 import Timestamp
-from infrastructure.security.dracon.utils.dracon_exceptions import DraconConfigError
-
-from infrastructure.security.dracon.proto import engine_pb2
-from infrastructure.security.dracon.proto import issue_pb2
-from infrastructure.security.dracon.proto import config_pb2
-
-
-class MockConfig:
-
-    def __init__(self):
-        self.scan_uuid = str(uuid.uuid4())
-        self.ts = "1991-01-01T00:00:00Z"
-        self.output = "/tmp/bandit_test/%s"%output.pb
-        self.target = "/tmp/"
+from utils.dracon_exceptions import DraconConfigError
 
 
 tmp_conf = MockConfig()
@@ -31,6 +22,7 @@ tmp_conf.target = None
 
 EMPTY_CONFIG = tmp_conf
 VALID_CONFIG = MockConfig()
+
 
 class TestBanditProducer(unittest.TestCase):
     bandit_producer = None
@@ -102,7 +94,8 @@ class TestBanditProducer(unittest.TestCase):
         self._write_test_pb()
 
         bandit_producer = BanditProducer()
-        self.assertTrue(bandit_producer.setup_from_file(f"{self.test_path}/launchToolRequest.pb"))
+        self.assertTrue(bandit_producer.setup_from_file(
+            f"{self.test_path}/launchToolRequest.pb"))
         self.assertEqual(bandit_producer.target, VALID_CONFIG.target)
 
         os.remove(f'{self.test_path}/launchToolRequest.pb')
@@ -128,7 +121,8 @@ class TestBanditProducer(unittest.TestCase):
         config.scan_uuid = None
 
         bandit_producer = BanditProducer()
-        self.assertRaises(DraconConfigError, lambda: bandit_producer.setup(config))
+        self.assertRaises(DraconConfigError,
+                          lambda: bandit_producer.setup(config))
 
     def test_fail_pb_config(self):
         """
@@ -163,7 +157,8 @@ class TestBanditProducer(unittest.TestCase):
             f.write(ltr.SerializeToString())
 
         bandit_producer = BanditProducer()
-        self.assertRaises(DraconConfigError, lambda: bandit_producer.setup(EMPTY_CONFIG))
+        self.assertRaises(DraconConfigError,
+                          lambda: bandit_producer.setup(EMPTY_CONFIG))
 
         os.system(f'rm {self.test_path}/launchToolRequest.pb')
 
@@ -184,7 +179,8 @@ class TestBanditProducer(unittest.TestCase):
         bandit_producer = self._create_producer()
         issue = bandit_producer.convert_to_issue(self.issue)
 
-        self.assertEqual(issue.target, f"{self.issue['filename']}:{self.issue['line_range']}")
+        self.assertEqual(
+            issue.target, f"{self.issue['filename']}:{self.issue['line_range']}")
         self.assertEqual(issue.type, 'try_except_pass')
         self.assertEqual(issue.title, 'try_except_pass')
         self.assertEqual(issue.severity, issue_pb2.SEVERITY_LOW)
@@ -201,11 +197,13 @@ class TestBanditProducer(unittest.TestCase):
 
         issue_cp = self.issue.copy()
         issue_cp['issue_severity'] = "TEST"
-        self.assertRaises(ValueError, lambda: bandit_producer.convert_to_issue(issue_cp))
+        self.assertRaises(
+            ValueError, lambda: bandit_producer.convert_to_issue(issue_cp))
 
         issue_cp = self.issue.copy()
         del issue_cp['filename']
-        self.assertRaises(KeyError, lambda: bandit_producer.convert_to_issue(issue_cp))
+        self.assertRaises(
+            KeyError, lambda: bandit_producer.convert_to_issue(issue_cp))
 
     def test_write_output(self):
         """

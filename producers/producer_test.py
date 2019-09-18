@@ -5,15 +5,14 @@ import tempfile
 import unittest
 from google.protobuf.timestamp_pb2 import Timestamp
 
-from infrastructure.security.dracon.utils import dracon_exceptions
-from infrastructure.security.dracon.producers.producer import Producer
-from infrastructure.security.dracon.proto import engine_pb2
-from infrastructure.security.dracon.proto import issue_pb2
-from infrastructure.security.dracon.proto import config_pb2
-from infrastructure.security.dracon.producers import producer_test_utils
+from utils import dracon_exceptions
+from producers.producer import Producer
+from gen import engine_pb2
+from gen import issue_pb2
+from gen import config_pb2
+from producers import producer_test_utils
 
 VALID_CONFIG = producer_test_utils.MockConfig()
-
 
 class TestProducer(unittest.TestCase):
     producer_template = None

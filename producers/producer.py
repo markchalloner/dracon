@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 
-from abc import ABC
+
 import os
 import re
+import logging
 
-from infrastructure.security.dracon.proto import engine_pb2
-from infrastructure.security.dracon.proto import issue_pb2
-from infrastructure.security.dracon.utils import dracon_exceptions
+from abc import ABC
+from gen import engine_pb2
+from gen import issue_pb2
+from utils import dracon_exceptions
 from google.protobuf.timestamp_pb2 import Timestamp
 
-logger = get_logger(__name__)
 
+logger = logging.getLogger(__name__)
 
 class Producer(ABC):
     output = None
