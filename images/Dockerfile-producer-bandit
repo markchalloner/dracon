@@ -1,0 +1,11 @@
+FROM python:3.7-alpine
+
+RUN adduser --shell /bin/false -u 1000 -D app
+RUN pip3 install bandit
+
+COPY producers/bandit/bandit.py /home/app
+
+
+USER app
+
+ENTRYPOINT ["python3 /home/app/bandit.py"]
