@@ -1,48 +1,26 @@
 #!/usr/bin/env python3
 
-import gflags
 import importlib
 import os
 import sys
-
+import logging
+import argparse
 from collections import namedtuple
 
-from common.python import flag_utils
-from .. import Producer
-from ..utils import dracon_exceptions
+from producers.producer import Producer
+from utils import dracon_exceptions
 
 
 from bandit.core import config as b_config
 from bandit.core import manager as b_manager
 from bandit.core import extension_loader
 
-FLAGS = gflags.FLAGS
-
-gflags.DEFINE_string('output', None, 'output file')
-gflags.DEFINE_string('target', None, 'target to verify')
-gflags.DEFINE_string('scan_uuid', None, 'scan uuid')
-gflags.DEFINE_string('ts', None, 'time when the scan was triggered')
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class BanditProducer(Producer):
     target = None
     manager = None
-
-    def _load_bandit_plugins(self, dirname='third_party/python3/bandit/plugins'):
-        '''
-            Manually load bandit plugins. This is required due to how plz packages
-            wheels.
-        '''
-        plugin = namedtuple('Plugin', ['name', 'plugin'])
-        for filename in os.listdir(dirname):
-            if filename.endswith('.py') and filename != '__init__.py':
-                package_name = os.path.join(dirname, filename[:-3]).replace('/', '.')
-                module = importlib.import_module(package_name)
-                for k, v in module.__dict__.items():
-                    if hasattr(v, '_test_id'):
-                        yield plugin(filename[:-3], v)
 
     def setup_from_argparse(self, tool_conf: argparse.Namespace) -> bool:
         try:
@@ -65,23 +43,16 @@ class BanditProducer(Producer):
         :param tool_conf: config passed through argparse
         :returns True if setup is done correctly, False in case of error
         """
-
+        
         if (not self.setup_from_argparse(tool_conf) and
                 not self.setup_from_file()):
             logger.fatal("Arguments couldnt be loaded")
-            raise dracon_exceptions.DraconConfigError("Could not configure Producer")
+            raise dracon_exceptions.DraconConfigError(
+                "Could not configure Producer")
 
         # setup bandit
         logger.debug("setup bandit instance")
         bandit_conf = b_config.BanditConfig()
-
-        logger.debug("Loading plugin ids to set tests")
-        mgr = extension_loader.MANAGER
-        mgr.plugins = list(self._load_bandit_plugins())
-        mgr.plugin_names = [plugin.name for plugin in mgr.plugins]
-        mgr.plugins_by_id = {p.plugin._test_id: p for p in mgr.plugins}  # noqa
-        mgr.plugins_by_name = {p.name: p for p in mgr.plugins}
-
         self.manager = b_manager.BanditManager(bandit_conf, 'file')
         self.manager.discover_files([self.target], True)
 
@@ -107,11 +78,19 @@ class BanditProducer(Producer):
             :param rec_issue: issue as a dictionary
             :return issue as a proto object
         """
+        plugin_info = extension_loader.MANAGER.plugins_by_id
+        blacklist_info = {} #blacklist means dangerous blacklisted methods
 
+        for a in extension_loader.MANAGER.blacklist.items():
+            for b in a[1]:
+                blacklist_info[b['id']]=b
+
+        plugin_info.update(blacklist_info)
+        
         return super().convert_to_issue({
             'target': f"{rec_issue['filename']}:{rec_issue['line_range']}",
-            'type': extension_loader.MANAGER.plugins_by_id[rec_issue['test_id']].name,
-            'title': extension_loader.MANAGER.plugins_by_id[rec_issue['test_id']].name,
+            'type': plugin_info[rec_issue['test_id']]['name'],
+            'title': plugin_info[rec_issue['test_id']]['name'],
             'severity': f"SEVERITY_{rec_issue['issue_severity']}",
             "cvss": 0,
             'confidence': f"CONFIDENCE_{rec_issue['issue_confidence']}",
@@ -134,10 +113,19 @@ class BanditProducer(Producer):
 
 
 if __name__ == "__main__":
-    flag_utils.parse_flags()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--output', help='output file')
+    parser.add_argument('--target', help='target to verify')
+    parser.add_argument('--scan_uuid', help='scan uuid')
+    parser.add_argument('--ts', help='time when the scan was triggered')
+    # @todo(spyros): implement transparent arg parsing to bandit
+    # parser.add_argument('toolArgs',default='', help='(not supported) extra arguments you want to pass bandit')
+    args = parser.parse_args()
+
     logger.debug("creating producer")
     bproducer = BanditProducer()
-    if not bproducer.setup(FLAGS):
+    if not bproducer.setup(args):
         sys.exit(2)
     logger.debug("executing bandit")
     issues = bproducer.run()
