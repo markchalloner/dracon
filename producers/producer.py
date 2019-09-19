@@ -10,7 +10,7 @@ from gen import engine_pb2
 from gen import issue_pb2
 from utils import dracon_exceptions
 from google.protobuf.timestamp_pb2 import Timestamp
-
+from argparse import Namespace
 
 logger = logging.getLogger(__name__)
 

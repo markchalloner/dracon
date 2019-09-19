@@ -7,7 +7,7 @@ import tempfile
 from gen import engine_pb2
 from gen import issue_pb2
 from gen import config_pb2
-from producers.bandit.bandit import BanditProducer
+from producers.python_bandit.python_bandit import BanditProducer
 from producers.producer_test_utils import MockConfig
 
 from google.protobuf.timestamp_pb2 import Timestamp
