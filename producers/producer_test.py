@@ -10,9 +10,9 @@ from producers.producer import Producer
 from gen import engine_pb2
 from gen import issue_pb2
 from gen import config_pb2
-from producers import producer_test_utils
+from utils import test_utils
 
-VALID_CONFIG = producer_test_utils.MockConfig()
+VALID_CONFIG = test_utils.ProducerMockConfig()
 
 class TestProducer(unittest.TestCase):
     producer_template = None

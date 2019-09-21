@@ -89,8 +89,8 @@ class BanditProducer(Producer):
         
         return super().convert_to_issue({
             'target': f"{rec_issue['filename']}:{rec_issue['line_range']}",
-            'type': plugin_info[rec_issue['test_id']]['name'],
-            'title': plugin_info[rec_issue['test_id']]['name'],
+            'type': plugin_info[rec_issue['test_id']].name,
+            'title': plugin_info[rec_issue['test_id']].name,
             'severity': f"SEVERITY_{rec_issue['issue_severity']}",
             "cvss": 0,
             'confidence': f"CONFIDENCE_{rec_issue['issue_confidence']}",

@@ -8,27 +8,27 @@ from gen import engine_pb2
 from gen import issue_pb2
 from gen import config_pb2
 from producers.python_bandit.python_bandit import BanditProducer
-from producers.producer_test_utils import MockConfig
+from utils.test_utils import ProducerMockConfig
 
 from google.protobuf.timestamp_pb2 import Timestamp
 from utils.dracon_exceptions import DraconConfigError
 
 
-tmp_conf = MockConfig()
+tmp_conf = ProducerMockConfig()
 tmp_conf.scan_uuid = None
 tmp_conf.scan_start_time = "1991-01-01T00:00:00Z"
 tmp_conf.output = None
 tmp_conf.target = None
 
 EMPTY_CONFIG = tmp_conf
-VALID_CONFIG = MockConfig()
+VALID_CONFIG = ProducerMockConfig()
 
 
 class TestBanditProducer(unittest.TestCase):
     bandit_producer = None
     issue = {
         "code": "316                 )\n317         except:\n318             pass\n",
-        "filename": "/home/someone/core/common/python/zipkin/zipkin.py",
+        "filename": "/home/someone/path/common/python/tool/file.py",
         "issue_confidence": "HIGH",
         "issue_severity": "LOW",
         "issue_text": "Try, Except, Pass detected.",
@@ -116,7 +116,7 @@ class TestBanditProducer(unittest.TestCase):
             an invalid config from command line arguments returns error
         """
 
-        config = MockConfig()
+        config = ProducerMockConfig()
         config.ts = None
         config.scan_uuid = None
 
@@ -161,15 +161,7 @@ class TestBanditProducer(unittest.TestCase):
                           lambda: bandit_producer.setup(EMPTY_CONFIG))
 
         os.system(f'rm {self.test_path}/launchToolRequest.pb')
-
-    def test_load_plugins(self):
-        """
-            Test if loading the bandit plugins is working
-        """
-
-        bandit_producer = self._create_producer()
-        self.assertTrue(list(bandit_producer._load_bandit_plugins()))
-
+            
     def test_convert_issue(self):
         """
             Test converting a bandit issue to a Dracon Issue

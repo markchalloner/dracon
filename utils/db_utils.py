@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 from datetime import datetime
 
-from common.python.db.db_connection import DbConnectionService
-from common.python.logging.config import get_logger
+import psycopg2
+import logging
+
+logger = logging.getLogger(__name__)
 
 VULNERABILITIES = {
     'table_name': 'vulnerabilities',
@@ -79,17 +81,12 @@ TABLES = [VULNERABILITIES, CHANGES]
 
 class DraconDBHelper:
     db_handler = None
-    logger = None
-
-    def __init__(self):
-        self.logger = get_logger(__name__)
 
     def connect(self, uri: str = "postgres://dracon:dracon@dracon-enrichment-db/dracondb"):
         """
             Connects the service to the Dracon db
         """
-        self.db_handler = DbConnectionService(
-            database_uri=uri
+        self.db_handler = psycopg2.connect(uri
         )
 
     def generate_create_tables(self) -> list:

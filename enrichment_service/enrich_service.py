@@ -101,7 +101,6 @@ class EnrichmentService():
         Takes a set of enriched scan results and stores it in the provided location
            :param results: List of EnrichedLaunchToolResponses
         """
-        logger.info('Storing enriched results')
         for result in results:
             raw_result = result.original_results
 

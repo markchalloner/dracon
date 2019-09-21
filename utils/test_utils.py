@@ -7,8 +7,12 @@ from builtins import str
 def get_random_str(size: int = 16):
     return ''.join(random.choices(string.ascii_letters + string.digits, k=size)).lower()
 
+class ConsumerMockConfig:
+    
+    def __init__(self):
+        self.pvc_location ='/tmp/'
 
-class MockConfig:
+class ProducerMockConfig:
 
     def __init__(self):
         self.scan_uuid = str(uuid.uuid4())

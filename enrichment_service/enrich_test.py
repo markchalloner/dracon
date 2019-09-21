@@ -1,17 +1,18 @@
 import glob
 import os
 import unittest
+import tempfile
+import shutil
 from base64 import b64encode
 from unittest import mock
 from datetime import datetime
 
 from utils import db_utils as db
-from utils.producer_test_utils import get_random_str
+from utils.test_utils import get_random_str
 from gen import engine_pb2
 from gen import issue_pb2
-from enrichment_service.enrichment_service import EnrichmentService
 from google.protobuf.timestamp_pb2 import Timestamp
-from enrichment_service import enrichment_service
+from enrichment_service.enrich_service import EnrichmentService
 
 
 class TestEnrichment(unittest.TestCase):
@@ -19,8 +20,8 @@ class TestEnrichment(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.config = {
-            'read_pvc_location': './read/',
-            'write_pvc_location': './write/',
+            'read_pvc_location': None,
+            'write_pvc_location': None,
             'db_uri': "postgres://username@hostname/databasename"
         }
 
@@ -29,31 +30,39 @@ class TestEnrichment(unittest.TestCase):
         ts.FromJsonString("1991-01-01T00:00:00Z")
         scan_results = engine_pb2.LaunchToolResponse(
             scan_info=engine_pb2.ScanInfo(
-                scan_uuid='dd1794f2-544d-456b-a45a-' + util_test.get_random_str(12),
+                scan_uuid='dd1794f2-544d-456b-a45a-' + get_random_str(12),
                 scan_start_time=ts,
             ),
-            tool_name=util_test.get_random_str(5),
+            tool_name=get_random_str(5),
         )
         self.scan_uuids.append(scan_results.scan_info.scan_uuid)
         return scan_results
 
     def generate_issue(self):
         issue = issue_pb2.Issue()
-        issue.target = util_test.get_random_str(10)
-        issue.type = util_test.get_random_str(10)
-        issue.title = util_test.get_random_str(10)
+        issue.target = get_random_str(10)
+        issue.type = get_random_str(10)
+        issue.title = get_random_str(10)
         issue.severity = issue_pb2.SEVERITY_CRITICAL
         issue.cvss = 19.01234
         issue.confidence = issue_pb2.CONFIDENCE_HIGH
-        issue.description = util_test.get_random_str(10)
+        issue.description = get_random_str(10)
         return issue
 
-    @mock.patch("infrastructure.security.dracon.utils.db_utils.DraconDBHelper.connect")
+    def tearDown(self):
+        shutil.rmtree(self.config['read_pvc_location'])
+        shutil.rmtree(self.config['write_pvc_location'])
+
+    @mock.patch("utils.db_utils.DraconDBHelper.connect")
     def setUp(self, mock_connect):
         self.test_scan_results = []
         self.scan_uuids = []
         self.issue_hashes = []
         self.duplicate_hash = {}
+
+        self.config['read_pvc_location'] = tempfile.mkdtemp()
+        self.config['write_pvc_location'] = tempfile.mkdtemp()
+
         service = EnrichmentService(self.config)
         for el in range(5):
             # Create a scan results object and serialize it to a file
@@ -71,8 +80,10 @@ class TestEnrichment(unittest.TestCase):
             issue.confidence = issue_pb2.CONFIDENCE_HIGH
             issue.description = "Test_Description"
             scan_results.issues.extend([issue])
-            scan_results.issues.extend([issue])  # assure we have a duplicate, predictably enriched
+            # assure we have a duplicate, predictably enriched
+            scan_results.issues.extend([issue])
             self.duplicate_hash[service._md5_hash(issue)] = issue
+            
             # should have a counter of 2
             # then generate some noise to make sure the rest of the engine works as expected
             for _ in range(10 + el):
@@ -80,7 +91,8 @@ class TestEnrichment(unittest.TestCase):
 
             self.test_scan_results.append(scan_results)  # safekeeping
 
-            filename = self.config['read_pvc_location'] + "/example_simple_response"
+            filename = self.config['read_pvc_location'] + \
+                "/example_simple_response"
             filename = filename + scan_results.scan_info.scan_uuid + ".pb"
 
             os.makedirs(os.path.dirname(filename), exist_ok=True)
@@ -106,10 +118,10 @@ class TestEnrichment(unittest.TestCase):
         else:
             return {}
 
-    @mock.patch("infrastructure.security.dracon.utils.db_utils.DraconDBHelper.insert_issue")
-    @mock.patch("infrastructure.security.dracon.utils.db_utils.DraconDBHelper.increase_count")
-    @mock.patch("infrastructure.security.dracon.utils.db_utils.DraconDBHelper.get_issue_by_hash")
-    @mock.patch("infrastructure.security.dracon.utils.db_utils.DraconDBHelper.connect")
+    @mock.patch("utils.db_utils.DraconDBHelper.insert_issue")
+    @mock.patch("utils.db_utils.DraconDBHelper.increase_count")
+    @mock.patch("utils.db_utils.DraconDBHelper.get_issue_by_hash")
+    @mock.patch("utils.db_utils.DraconDBHelper.connect")
     def test_enrichment(self, mock_connect, mock_get_issue_by_hash,
                         mock_increase_count, mock_insert_issue):
         """A basic test that reads a scan result, enriches it, and ensures that it's
@@ -135,10 +147,10 @@ class TestEnrichment(unittest.TestCase):
                     self.assert_issue_contents_match(enriched_issues=enriched_tool_response.issues,
                                                      original_issues=launch_tool_response.issues)
 
-    @mock.patch("infrastructure.security.dracon.utils.db_utils.DraconDBHelper.insert_issue")
-    @mock.patch("infrastructure.security.dracon.utils.db_utils.DraconDBHelper.increase_count")
-    @mock.patch("infrastructure.security.dracon.utils.db_utils.DraconDBHelper.connect")
-    @mock.patch("infrastructure.security.dracon.utils.db_utils.DraconDBHelper.get_issue_by_hash")
+    @mock.patch("utils.db_utils.DraconDBHelper.insert_issue")
+    @mock.patch("utils.db_utils.DraconDBHelper.increase_count")
+    @mock.patch("utils.db_utils.DraconDBHelper.connect")
+    @mock.patch("utils.db_utils.DraconDBHelper.get_issue_by_hash")
     def test_enriched_storage(self, mock_connect, mock_get_issue_by_hash,
                               increase_count, mock_insert_issue):
         """ Test that we can read stored enriched results correctly """
@@ -153,8 +165,8 @@ class TestEnrichment(unittest.TestCase):
         for filename in glob.iglob(glob_pattern, recursive=True):
             with open(filename, "rb") as f:
                 results_from_file.ParseFromString(f.read())
-                self.assertIn(results_from_file.original_results.scan_info.scan_uuid,
-                              self.scan_uuids)
+            self.assertIn(
+                results_from_file.original_results.scan_info.scan_uuid, self.scan_uuids)
 
     def assert_issue_contents_match(self, enriched_issues: issue_pb2.EnrichedIssue,
                                     original_issues: issue_pb2.Issue):
@@ -166,10 +178,12 @@ class TestEnrichment(unittest.TestCase):
         # an Issue then their contents are the same.
         # This asserts that we didn't miss any unique issues in deduplication
         for e_issue in enriched_issues:
-            e_issue_hashes[b64encode(e_issue.raw_issue.SerializeToString())] = e_issue
+            e_issue_hashes[b64encode(
+                e_issue.raw_issue.SerializeToString())] = e_issue
 
         for o_issue in original_issues:
-            self.assertIn(b64encode(o_issue.SerializeToString()), e_issue_hashes.keys())
+            self.assertIn(b64encode(o_issue.SerializeToString()),
+                          e_issue_hashes.keys())
 
 
 if __name__ == '__main__':
