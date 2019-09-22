@@ -10,7 +10,6 @@ from collections import namedtuple
 from producers.producer import Producer
 from utils import dracon_exceptions
 
-
 from bandit.core import config as b_config
 from bandit.core import manager as b_manager
 from bandit.core import extension_loader
@@ -43,7 +42,7 @@ class BanditProducer(Producer):
         :param tool_conf: config passed through argparse
         :returns True if setup is done correctly, False in case of error
         """
-        
+
         if (not self.setup_from_argparse(tool_conf) and
                 not self.setup_from_file()):
             logger.fatal("Arguments couldnt be loaded")
@@ -79,18 +78,29 @@ class BanditProducer(Producer):
             :return issue as a proto object
         """
         plugin_info = extension_loader.MANAGER.plugins_by_id
-        blacklist_info = {} #blacklist means dangerous blacklisted methods
+        blacklist_info = {}  # blacklist means dangerous blacklisted methods
 
         for a in extension_loader.MANAGER.blacklist.items():
             for b in a[1]:
-                blacklist_info[b['id']]=b
+                blacklist_info[b['id']] = b
 
         plugin_info.update(blacklist_info)
+        test_id = rec_issue['test_id']
         
+        # workaround for bug where plugin_info[test_id] is eithe a dict or an Object
+        # uncomment following to see bug in action
+        # from pprint import pprint
+        # pprint(plugin_info[test_id])
+
+        if type(plugin_info[test_id]) is dict:
+            test_name = plugin_info[test_id]['name']
+        elif "Extension" in str(type(plugin_info[test_id])):
+            test_name = plugin_info[test_id].name
+
         return super().convert_to_issue({
             'target': f"{rec_issue['filename']}:{rec_issue['line_range']}",
-            'type': plugin_info[rec_issue['test_id']].name,
-            'title': plugin_info[rec_issue['test_id']].name,
+            'type': test_name,
+            'title': test_name,
             'severity': f"SEVERITY_{rec_issue['issue_severity']}",
             "cvss": 0,
             'confidence': f"CONFIDENCE_{rec_issue['issue_confidence']}",
@@ -123,12 +133,12 @@ if __name__ == "__main__":
     # parser.add_argument('toolArgs',default='', help='(not supported) extra arguments you want to pass bandit')
     args = parser.parse_args()
 
-    logger.debug("creating producer")
+    logger.info("creating producer")
     bproducer = BanditProducer()
     if not bproducer.setup(args):
         sys.exit(2)
-    logger.debug("executing bandit")
+    logger.info("executing bandit")
     issues = bproducer.run()
-    logger.debug("producing output.")
+    logger.info("producing output.")
     bproducer.write_output(issues)
-    logger.debug("output written, terminating normally.")
+    logger.info("output written, terminating normally.")

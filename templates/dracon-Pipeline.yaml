@@ -1,0 +1,12 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: dracon-tekton-demo
+  namespace: dracon-tekton-demo
+spec:
+  resources: 
+  tasks:
+  - name: 472c8d6c-3f1b-4b15-b042-54c7f6f8e996
+    taskRef:
+      name: 472c8d6c-3f1b-4b15-b042-54c7f6f8e996

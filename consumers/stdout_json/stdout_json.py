@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 class StdoutJsonConsumer(Consumer):
 
     def __init__(self, config: dict):
+        print("Starting Consumer")
         self.pvc_location = config.pvc_location
+        print("Reading from %s" % self.pvc_location)
 
         if (self.pvc_location is None):
             raise AttributeError("PVC claim location is missing")
@@ -71,27 +73,26 @@ class StdoutJsonConsumer(Consumer):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--pvc_location', help='The location of the scan results')
+    parser.add_argument(
+        '--raw', help='if it should process raw or enriched results', action="store_true")
+    args = parser.parse_args()
+    ec = StdoutJsonConsumer(args)
     try:
-        parser = argparse.ArgumentParser()
-        parser.add_argument(
-            '--pvc_location', help='The location of the scan results')
-        parser.add_argument(
-            '--raw', help='if it should process raw or enriched results', action="store_true")
-        args = parser.parse_args()
-        ec = StdoutJsonConsumer(args)
-    except AttributeError as e:
-        logger.error('A required argument is missing: ' + str(e))
-        sys.exit(-1)
-    try:
-        logger.info('Loading results from %s' % str(ec.pvc_location))
+        print('Loading results from %s' % str(ec.pvc_location))
         collected_results, raw = ec.load_results()
+        print("gathered %s results"%len(collected_results))
+        print("Reading raw: %s "%len(raw))
     except SyntaxError as e:
         logger.error('Unable to load results from %s: ' % str(e))
         sys.exit(-1)
 
     ec.send_results(collected_results, args.raw)
-    logger.info('Done!')
+    print('Done!')
 
 
 if __name__ == '__main__':
+    print("Consumer Stdout JSON running")
     main()

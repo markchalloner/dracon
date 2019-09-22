@@ -1,0 +1,70 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: <scan_uuid>
+  namespace: dracon-tekton-demo
+spec:
+  taskSpec:
+    volumes:
+    - name: dracon-secrets
+      emptyDir: {}
+    steps:
+    - name: code
+      image: ubuntu
+      imagePullPolicy: Never
+      command:
+      - "/bin/sh"
+      args:
+      - "-c"
+      - apt update && apt install -y git && mkdir -p /workspace/scan-source /workspace/raw
+        /workspace/enriched && chown 1000:1000 /workspace/scan-source /workspace/raw
+        /workspace/enriched && git clone https://github.com/Contrast-Security-OSS/DjanGoat.git
+        /workspace/scan-source/ --depth 1
+    - name: producer-mc-producerface-0
+      image: dracon/producer/bandit
+      imagePullPolicy: Never
+      command:
+      - "python3"
+      args: 
+      - "/home/app/dracon/producers/python_bandit/python_bandit.py"
+      - "--target"
+      - "/workspace/scan-source/"
+      - "--output"
+      - "/workspace/raw/bandit.pb"
+      - "--scan_uuid"
+      - 472c8d6c-3f1b-4b15-b042-54c7f6f8e996
+      - "--ts"
+      - '2019-09-22T12:44:39+00:00'
+    - name: enrichment-service
+      image: dracon/enrichment
+      imagePullPolicy: Never
+      command:
+      - "python3"
+      args:
+      - "/home/app/dracon/enrichment_service/enrich_service.py"
+      - "--read_pvc_location"
+      - "/workspace/raw/"
+      - "--write_pvc_location"
+      - "/workspace/enriched"
+      - "--db_uri"
+      - postgresql://dracon:dracon@dracon-enrichment-db.dracon-tekton-demo.svc.cluster.local
+    - name: consumer-mc-consumerface-1
+      image: dracon/consumer/elasticsearch
+      imagePullPolicy: Never
+      command:
+      - "python3"
+      args:
+      - "/home/app/dracon/consumers/elasticsearch_c/elasticsearch_consumer.py"
+      - "--es_url=https://elasticsearch-logging.kube-system.svc.cluster.local:9200"
+      - "--es_index=dracon-dev"
+      - "--pvc_location=/workspace/enriched"
+    - name: consumer-mc-consumerface-2
+      image: dracon/consumer/stdout-json
+      imagePullPolicy: Never
+      command:
+      - "python3"
+      args:
+      - "/home/app/dracon/consumers/stdout_json/stdout_json.py"
+      - "--pvc_location=/workspace/enriched"    
+  serviceAccount: dracon

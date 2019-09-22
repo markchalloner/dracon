@@ -82,12 +82,12 @@ TABLES = [VULNERABILITIES, CHANGES]
 class DraconDBHelper:
     db_handler = None
 
-    def connect(self, uri: str = "postgres://dracon:dracon@dracon-enrichment-db/dracondb"):
+    def connect(self, uri: str):
         """
             Connects the service to the Dracon db
         """
-        self.db_handler = psycopg2.connect(uri
-        )
+        self.db_handler = psycopg2.connect(dsn=uri)
+        self.db_handler.autocommit = True
 
     def generate_create_tables(self) -> list:
         """
@@ -99,7 +99,7 @@ class DraconDBHelper:
         stmts = []
 
         for t_obj in TABLES:
-            t_stmt = "CREATE TABLE " + t_obj['table_name'] + "("
+            t_stmt = "CREATE TABLE IF NOT EXISTS %s ("%t_obj['table_name']
 
             field_stmts = [
                 'id SERIAL PRIMARY KEY'
@@ -126,19 +126,25 @@ class DraconDBHelper:
         """
             Truncate all the tables via the TABLES global var
         """
-        with self.db_handler.new_connection() as db:
+        with self.db_handler.cursor() as db:
             with db:
                 for table in TABLES:
                     t_name = table['table_name']
                     db.execute(f'TRUNCATE TABLE {t_name} CASCADE')
 
-    def execute(self, fmt_expr: str, values: list = []):
+    def execute_update(self, fmt_expr: str, values: list = []):
+        db = self.db_handler.cursor()
+        db.execute(fmt_expr, values)
+
+    def execute(self, fmt_expr: str, values: list = [])->[]:
         """
             Execute an sql statement using the class db handler
         """
-        with self.db_handler.new_connection() as db:
-            with db:
-                return db.execute(fmt_expr, values)
+        db = self.db_handler.cursor()
+        db.execute(fmt_expr, values)
+        data = db.fetchall()
+        db.close()
+        return data;
 
     def result_hash_exists(self, hash: str = None) -> bool:
         query = """SELECT 1 FROM vulnerabilities WHERE hash=%s"""
@@ -165,14 +171,14 @@ class DraconDBHelper:
     def increase_count(self, issue_hash: str = None):
         query = """UPDATE """ + VULNERABILITIES[
             'table_name'] + """ SET found_counter=found_counter+1 WHERE hash=%s"""
-        self.execute(query, [issue_hash])
+        self.execute_update(query, [issue_hash])
 
     def insert_issue(self, target: str, title: str, severity: int, cvss: float, confidence: int,
                      description: str, hash: str, found_counter: int, first_seen: datetime):
         query = """INSERT INTO vulnerabilities(target,title, severity, cvss, confidence,\
         description, hash, found_counter,first_seen)\
          VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
-        self.execute(query, [target, title, severity, cvss, confidence, description, hash,
+        self.execute_update(query, [target, title, severity, cvss, confidence, description, hash,
                              found_counter, first_seen])
 
     def get_all_issues(self):

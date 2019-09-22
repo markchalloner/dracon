@@ -17,7 +17,7 @@ image_enricher:
 	docker build -f images/Dockerfile-enricher -t dracon/enrichment .
 
 image_consumer_stdout:
-	docker build -f images/Dockerfile-consumer-stdout_json .
+	docker build -f images/Dockerfile-consumer-stdout_json -t dracon/consumer/stdout-json .
 
 image_consumer_elasticsearch:
 	docker build -f images/Dockerfile-consumer-elasticsearch -t dracon/consumer/elasticsearch .

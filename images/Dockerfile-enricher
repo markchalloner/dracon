@@ -8,5 +8,4 @@ RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev &&\
 
 USER app
 ENV PYTHONPATH=$PYTHONPATH:/home/app/dracon
-ENTRYPOINT ["python3","/home/app/dracon/enrichment_service/enrichment_service.py"]
- 
+ENTRYPOINT ["python3","/home/app/dracon/enrichment_service/enrich_service.py"]

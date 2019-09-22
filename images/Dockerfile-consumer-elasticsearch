@@ -7,4 +7,4 @@ RUN pip3 install protobuf google elasticsearch certifi
 
 USER app
 ENV PYTHONPATH=$PYTHONPATH:/home/app/dracon
-ENTRYPOINT ["python3","/home/app/dracon/consumers/stdout_json/elasticsearch.py"]
+ENTRYPOINT ["python3","/home/app/dracon/consumers/elasticsearch_c/elasticsearch_consumer.py"]
