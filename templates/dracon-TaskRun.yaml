@@ -3,7 +3,7 @@ apiVersion: tekton.dev/v1alpha1
 kind: TaskRun
 metadata:
   name: <scan_uuid>
-  namespace: dracon-tekton-demo
+  namespace: dracon-demo
 spec:
   taskSpec:
     volumes:
@@ -48,7 +48,7 @@ spec:
       - "--write_pvc_location"
       - "/workspace/enriched"
       - "--db_uri"
-      - postgresql://dracon:dracon@dracon-enrichment-db.dracon-tekton-demo.svc.cluster.local
+      - postgresql://dracon:dracon@dracon-db.dracon-demo.svc.cluster.local
     - name: consumer-mc-consumerface-1
       image: dracon/consumer/elasticsearch
       imagePullPolicy: Never

@@ -2,8 +2,8 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Pipeline
 metadata:
-  name: dracon-tekton-demo
-  namespace: dracon-tekton-demo
+  name: dracon-demo
+  namespace: dracon-demo
 spec:
   resources: 
   tasks:
