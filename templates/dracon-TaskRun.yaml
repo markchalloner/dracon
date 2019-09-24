@@ -11,7 +11,7 @@ spec:
       emptyDir: {}
     steps:
     - name: code
-      image: ubuntu
+      image: ubuntu:latest
       imagePullPolicy: Never
       command:
       - "/bin/sh"
@@ -22,7 +22,7 @@ spec:
         /workspace/enriched && git clone https://github.com/Contrast-Security-OSS/DjanGoat.git
         /workspace/scan-source/ --depth 1
     - name: producer-mc-producerface-0
-      image: dracon/producer/bandit
+      image: dracon/producer/bandit:latest
       imagePullPolicy: Never
       command:
       - "python3"
@@ -37,7 +37,7 @@ spec:
       - "--ts"
       - '2019-09-22T12:44:39+00:00'
     - name: enrichment-service
-      image: dracon/enrichment
+      image: dracon/enrichment:latest
       imagePullPolicy: Never
       command:
       - "python3"
@@ -48,19 +48,19 @@ spec:
       - "--write_pvc_location"
       - "/workspace/enriched"
       - "--db_uri"
-      - postgresql://dracon:dracon@dracon-db.dracon-demo.svc.cluster.local
+      - postgresql://dracon:dracon@dracon-db.dracon.svc.cluster.local
     - name: consumer-mc-consumerface-1
-      image: dracon/consumer/elasticsearch
+      image: dracon/consumer/elasticsearch:latest
       imagePullPolicy: Never
       command:
       - "python3"
       args:
       - "/home/app/dracon/consumers/elasticsearch_c/elasticsearch_consumer.py"
-      - "--es_url=https://elasticsearch-logging.kube-system.svc.cluster.local:9200"
+      - "--es_url=http://elasticsearch-logging.kube-system.svc.cluster.local:9200"
       - "--es_index=dracon-dev"
       - "--pvc_location=/workspace/enriched"
     - name: consumer-mc-consumerface-2
-      image: dracon/consumer/stdout-json
+      image: dracon/consumer/stdout-json:latest
       imagePullPolicy: Never
       command:
       - "python3"

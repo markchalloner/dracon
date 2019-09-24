@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 
 class ES_Client:
 
-    def __init__(self, url: str = '', ca: str = '', dry_run: bool = None):
+    def __init__(self, ca: str='', url: str = '', dry_run: bool = None):
 
         url = url
         ca = ca
         if not url:
             raise ValueError('Must set elasticsearch_url')
-        self.es = Elasticsearch([url], ca_certs=ca)
+        self.es = Elasticsearch([url], ca_certs=ca, timeout=120)
         self.dry_run = dry_run
 
     def send(self, index: str, doc_type: str, data: dict):
@@ -85,40 +85,49 @@ class ElasticsearchConsumer(Consumer):
         :param collected_results: list of LaunchToolResponse protobufs
         """
 
-        es_client = ES_Client(
-            url=self.es_location, ca=certifi.where(), dry_run=self.dry_run)
-
+        if 'https' in self.es_location:
+            es_client = ES_Client(
+                url=self.es_location, ca=certifi.where(), dry_run=self.dry_run)
+        else:
+            es_client = ES_Client(
+                url=self.es_location, ca=None, dry_run=self.dry_run)
         if (self.dry_run):
             print(
                 'dry_run set: not sending data to ElasticSearch instance')
-
+    
         for sc in collected_results:
-            for iss in sc.issues:
-                if self.raw:
-                    scan = sc
-                    issue = iss
-                    first_found = scan.scan_info.scan_start_time.ToJsonString()
-                    false_positive = False
-                else:
-                    issue = iss.raw_issue
-                    first_found = iss.first_seen.ToJsonString()
-                    false_positive = iss.false_positive
-                    scan = sc.original_results
-                data = {
-                    'scan_start_time': scan.scan_info.scan_start_time.ToJsonString(),
-                    'scan_id': scan.scan_info.scan_uuid,
-                    'tool_name': scan.tool_name,
-                    'target': issue.target,
-                    'type': issue.type,
-                    'title': issue.title,
-                    'severity': issue.severity,
-                    'cvss': issue.cvss,
-                    'confidence': issue.confidence,
-                    'description': issue.description,
-                    'first_found': first_found,
-                    'false_positive': false_positive
-                }
-                es_client.send(index=self.index,doc_type=raw_scan.tool_name, data=data)
+            for el in sc:
+                for iss in el.issues:
+                    if self.raw:
+                        scan = sc
+                        issue = iss
+                        first_found = scan.scan_info.scan_start_time.ToJsonString()
+                        false_positive = False
+                    else:
+                        #from pprint import pprint
+                        #pprint(iss)
+
+                        issue = iss.raw_issue
+                        first_found = iss.first_seen.ToJsonString()
+                        false_positive = iss.false_positive
+                        scan = el.original_results
+
+                    data = {
+                        'scan_start_time': scan.scan_info.scan_start_time.ToJsonString(),
+                        'scan_id': scan.scan_info.scan_uuid,
+                        'tool_name': scan.tool_name,
+                        'target': issue.target,
+                        'type': issue.type,
+                        'title': issue.title,
+                        'severity': issue.severity,
+                        'cvss': issue.cvss,
+                        'confidence': issue.confidence,
+                        'description': issue.description,
+                        'first_found': first_found,
+                        'false_positive': false_positive
+                    }
+                    print('sending to elasticsearch')
+                    es_client.send(index=self.index,doc_type=scan.tool_name, data=data)
 
 
 def main():
@@ -140,20 +149,20 @@ def main():
         ec = ElasticsearchConsumer(args)
     except AttributeError as e:
         logger.error('A required argument is missing: ' + str(e))
-        sys.exit(-1)
+        raise
     try:
         print('Loading results from the PVC at ' + str(ec.pvc_location))
         collected_results = ec.load_results()
     except SyntaxError as e:
         logger.error('Unable to load results from the PVC: ' + str(e))
-        sys.exit(-1)
+        raise
     try:
         print('Sending results to Elasticsearch: %s index %s ' %
               (args.es_url, args.es_index))
         ec.send_results(collected_results)
     except Exception as e:
         logger.error('Unable to send results to Elasticsearch:' + str(e))
-        sys.exit(-1)
+        raise
     print('Done!')
 
 

@@ -9,7 +9,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: db-setup
-  namespace: dracon-tekton-demo
+  namespace: dracon-demo
   labels:
     app: enricher-db-setup
 spec:
@@ -28,7 +28,7 @@ spec:
       - "--write_pvc_location"
       - "/"
       - "--db_uri"
-      - postgresql://dracon:dracon@dracon-enrichment-db.dracon-tekton-demo.svc.cluster.local
+      - postgresql://dracon:dracon@dracon-db.dracon.svc.cluster.local
 EndOfMessage
 kubectl apply -f $tmpfile
-kubectl -n dracon-tekton-demo get po db-setup
+kubectl -n dracon-demo get po db-setup

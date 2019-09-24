@@ -12,15 +12,15 @@ proto:
 	protoc -I=$(SRC_DIR) -I=$(DST_DIR) --python_out=$(DST_DIR) $(SRC_DIR)/config.proto $(SRC_DIR)/engine.proto $(SRC_DIR)/issue.proto
 
 image_producer_bandit:
-	docker build -f images/Dockerfile-producer-bandit -t dracon/producer/bandit .
+	docker build -f images/Dockerfile-producer-bandit -t dracon/producer/bandit:latest .
 image_enricher:
-	docker build -f images/Dockerfile-enricher -t dracon/enrichment .
+	docker build -f images/Dockerfile-enricher -t dracon/enrichment:latest .
 
 image_consumer_stdout:
-	docker build -f images/Dockerfile-consumer-stdout_json -t dracon/consumer/stdout-json .
+	docker build -f images/Dockerfile-consumer-stdout_json -t dracon/consumer/stdout-json:latest .
 
 image_consumer_elasticsearch:
-	docker build -f images/Dockerfile-consumer-elasticsearch -t dracon/consumer/elasticsearch .
+	docker build -f images/Dockerfile-consumer-elasticsearch -t dracon/consumer/elasticsearch:latest .
 
 
 images: image_producer_bandit image_enricher image_consumer_stdout image_consumer_elasticsearch
