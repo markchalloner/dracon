@@ -8,11 +8,13 @@ import utils.db_utils as db
 
 from gen import engine_pb2, issue_pb2
 from utils.file_utils import load_files
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+
 class EnrichmentService():
-    
+
     def __init__(self, config):
         try:
             self.read_pvc_location = config['read_pvc_location']
@@ -26,7 +28,8 @@ class EnrichmentService():
 
     def _md5_hash(self, issue: issue_pb2.Issue):
         md = hashlib.md5()
-        md.update(("" + issue.target + issue.type + issue.title).encode("ascii"))
+        md.update(("" + issue.target + issue.type +
+                   issue.title).encode("ascii"))
         md.update(str(issue.severity).encode('ascii'))
         md.update(str(issue.cvss).encode('ascii'))
         md.update(str(issue.confidence).encode('ascii'))
@@ -75,7 +78,8 @@ class EnrichmentService():
         enriched_tool_results = engine_pb2.EnrichedLaunchToolResponse()
         enriched_issues = {}
         for issue in tool_response.issues:
-            enriched_issue, issue_hash = self.enrich_single_issue(orig_issue=issue)
+            enriched_issue, issue_hash = self.enrich_single_issue(
+                orig_issue=issue)
             enriched_issues[issue_hash] = enriched_issue
 
         enriched_tool_results.original_results.CopyFrom(tool_response)
@@ -101,25 +105,28 @@ class EnrichmentService():
         Takes a set of enriched scan results and stores it in the provided location
            :param results: List of EnrichedLaunchToolResponses
         """
-        logger.info('Storing enriched results')
         for result in results:
             raw_result = result.original_results
 
             # Uses the b64 encoded scan uuid as the filename for the result
-            filepath = self.write_pvc_location + "/" + raw_result.scan_info.scan_uuid + '.pb'
+            filepath = self.write_pvc_location + "/" + \
+                raw_result.scan_info.scan_uuid + '.pb'
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
             with open(filepath, "wb") as f:
-                logger.info('Writing enriched results to ' + filepath)
+                print('Writing enriched results to ' + filepath)
                 serialized_result = result.SerializeToString()
                 f.write(serialized_result)
 
 
 def setup(db_uri):
+
+    print("uri is  %s" % db_uri)
     helper = db.DraconDBHelper()
     helper.connect(db_uri)
     for s in helper.generate_create_tables():
-        helper.execute(s)
+        print('Running Query: %s' % s)
+        helper.execute_update(s)
 
 
 def main(stdin):
@@ -139,15 +146,16 @@ def main(stdin):
 
     args = vars(parser.parse_args())
     if args['setup'] is True:
+        print("Setting up db tables")
         setup(args['db_uri'])
+        print('Table setup complete!')
+        exit(0)
 
-    try:
-        enricher = EnrichmentService(args)
-        collected_results = enricher.enrich_results()
-        enricher.store_enriched_results(collected_results)
-    except AttributeError as e:
-        logger.error('A required argument is missing: ' + str(e))
-        exit(1)
+    enricher = EnrichmentService(args)
+    collected_results = enricher.enrich_results()
+    print("Enriched %s results " % len(collected_results))
+    enricher.store_enriched_results(collected_results)
+    print("Stored enriched results at %s" % args['write_pvc_location'])
 
 
 if __name__ == '__main__':
