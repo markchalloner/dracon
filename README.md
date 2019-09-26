@@ -22,6 +22,11 @@ We also have tutorials for
 | [Example of using a public git repo ][tut-public-repo]   | Example of running dracon against a public git repository  |
 | [Example of using a private git repo ][tut-private-repo] | Example of running dracon against a private git repository |
 
+## Announcements
+
+Dracon was announced at OWASP Appsec Amsterdam in 2019. Check out [the slides](docs/Dracon-OWASP-Presentation-export.pdf)
+from the presentation.
+
 # Support
 
 If you have questions, reach out to us by opening a github [issue](https://github.com/thought-machine/dracon/issues/new?title=Question:%20&labels=question)
@@ -34,7 +39,8 @@ and [releasing](docs/contributers/RELEASES.md) guides on how to get started.
 
 # License
 
-Dracon is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
+Dracon is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for
+details.
 
 [tut-minikube]: docs/getting-started/minikube.md
 [tut-own-pipeline]: docs/getting-started/tutorials/constructing-your-own-pipeline.md
