@@ -2,9 +2,11 @@
 SRC_DIR := api/proto
 DST_DIR := gen
 
+VERSION="dev-`git rev-parse --short HEAD`"
+
 .PHONY: proto
 
-envsetup: 
+envsetup:
 	export PYTHONPATH=$$PYTHONPATH:$$(pwd):$$(pwd)/gen
 	pip3 install protobuf grpcio grpcio-tools psycopg2 bandit certifi elasticsearch
 
@@ -24,7 +26,6 @@ image_consumer_elasticsearch:
 
 
 images: image_producer_bandit image_enricher image_consumer_stdout image_consumer_elasticsearch
-	
 
 
 test_producers:
@@ -41,7 +42,12 @@ test_templating_engine:
 test_utils:
 	python -m unittest discover utils/ -p '*test.py'
 
-tests: test_producers test_consumers test_enrichment_service test_templating_engine test_utils 
-	
-	
-	
+tests: test_producers test_consumers test_enrichment_service test_templating_engine test_utils
+
+.PHONY: build_engine
+build_engine:
+	go build -o dist/dracon -ldflags "-X github.com/thought-machine/dracon-private/pkg/version.BuildVersion=${VERSION}" cmd/dracon/main.go
+
+.PHONY: run_engine
+run_engine:
+	go run -ldflags "-X github.com/thought-machine/dracon-private/pkg/version.BuildVersion=${VERSION}" cmd/dracon/main.go
