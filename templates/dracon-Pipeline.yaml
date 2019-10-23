@@ -5,7 +5,7 @@ metadata:
   name: dracon-demo
   namespace: dracon-demo
 spec:
-  resources: 
+  resources:
   tasks:
   - name: 472c8d6c-3f1b-4b15-b042-54c7f6f8e996
     taskRef:
