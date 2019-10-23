@@ -16,7 +16,7 @@ limitations under the License.
 package main
 
 import (
-	"github.com/thought-machine/dracon-private/cmd/dracon/cmd"
+	"github.com/thought-machine/dracon/cmd/dracon/cmd"
 )
 
 func main() {
