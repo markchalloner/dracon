@@ -11,7 +11,7 @@ First get set up with the [install guide](docs/install.md) then run through the
 
 # Support
 
-If you have qestions, reach out to us by opening a github [issue](https://github.com/thought-machine/dracon/issues/new?title=Question:%20&labels=question)
+If you have questions, reach out to us by opening a github [issue](https://github.com/thought-machine/dracon/issues/new?title=Question:%20&labels=question)
 prefixing your title with `Question:`.
 
 # Contributing
