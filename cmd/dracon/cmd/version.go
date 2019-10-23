@@ -13,12 +13,26 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package cmd
 
 import (
-	"github.com/thought-machine/dracon-private/cmd/dracon/cmd"
+	"fmt"
+
+	"github.com/thought-machine/dracon-private/pkg/version"
+
+	"github.com/spf13/cobra"
 )
 
-func main() {
-	cmd.Execute()
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the Dracon version",
+	Long:  `Print the Dracon client and server version information for the current context`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("Version: %s\n", version.BuildVersion)
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(versionCmd)
 }
