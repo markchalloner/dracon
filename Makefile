@@ -1,7 +1,4 @@
 
-SRC_DIR := api/proto
-DST_DIR := gen
-
 VERSION="dev-`git rev-parse --short HEAD`"
 
 .PHONY: proto
@@ -11,7 +8,7 @@ envsetup:
 	pip3 install protobuf grpcio grpcio-tools psycopg2 bandit certifi elasticsearch
 
 proto:
-	protoc -I=$(SRC_DIR) -I=$(DST_DIR) --python_out=$(DST_DIR) $(SRC_DIR)/config.proto $(SRC_DIR)/engine.proto $(SRC_DIR)/issue.proto
+	scripts/gen-proto.sh
 
 image_producer_bandit:
 	docker build -f images/Dockerfile-producer-bandit -t dracon/producer/bandit:latest .

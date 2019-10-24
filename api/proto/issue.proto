@@ -1,4 +1,6 @@
 syntax = "proto3";
+package dracon.v1;
+option go_package = "v1";
 
 import "google/protobuf/timestamp.proto";
 

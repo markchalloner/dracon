@@ -1,4 +1,6 @@
 syntax = "proto3";
+package dracon.v1;
+option go_package = "v1";
 
 import "issue.proto";
 import "config.proto";
@@ -21,7 +23,7 @@ message ScanInfo {
  * through which options are passed */
 message LaunchToolRequest {
     ScanInfo scan_info = 1;
-    Config config = 2;
+    dracon.v1.Config config = 2;
 }
 
 /* LaunchToolReponse consists of a response built by a producer,
@@ -31,7 +33,7 @@ message LaunchToolResponse {
     // The name of the tool that ran the scan
     string tool_name = 2;
     // Issues discovered during the scan
-    repeated Issue issues = 3;
+    repeated dracon.v1.Issue issues = 3;
 }
 
 /*
