@@ -46,8 +46,8 @@ tests: test_producers test_consumers test_enrichment_service test_templating_eng
 
 .PHONY: build_engine
 build_engine:
-	go build -o dist/dracon -ldflags "-X github.com/thought-machine/dracon-private/pkg/version.BuildVersion=${VERSION}" cmd/dracon/main.go
+	go build -o dist/dracon -ldflags "-X github.com/thought-machine/dracon/pkg/version.BuildVersion=${VERSION}" cmd/dracon/main.go
 
 .PHONY: run_engine
 run_engine:
-	go run -ldflags "-X github.com/thought-machine/dracon-private/pkg/version.BuildVersion=${VERSION}" cmd/dracon/main.go
+	go run -ldflags "-X github.com/thought-machine/dracon/pkg/version.BuildVersion=${VERSION}" cmd/dracon/main.go

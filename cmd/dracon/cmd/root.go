@@ -29,7 +29,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "dracon-private",
+	Use:   "dracon.yaml",
 	Short: "Dracon",
 	Long:  `CLI for Dracon Security Pipelines.`,
 }
@@ -46,7 +46,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dracon-private.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.dracon.yaml.yaml)")
 }
 
 // initConfig reads in config file and ENV variables if set.
