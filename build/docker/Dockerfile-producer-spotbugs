@@ -1,0 +1,10 @@
+FROM golang:alpine AS builder
+
+COPY . /app
+WORKDIR /app
+RUN go build -o /dist/java_spotbugs producers/java_spotbugs/main.go
+
+FROM scratch
+
+COPY --from=builder /dist/java_spotbugs /parse
+ENTRYPOINT ["/parse"]

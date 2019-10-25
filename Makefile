@@ -10,19 +10,30 @@ envsetup:
 proto:
 	scripts/gen-proto.sh
 
+image_producers: image_producer_bandit image_producer_gosec image_producer_spotbugs
 image_producer_bandit:
-	docker build -f images/Dockerfile-producer-bandit -t dracon/producer/bandit:latest .
+	docker build -f build/docker/Dockerfile-producer-bandit -t dracon/producer/bandit:latest .
+image_producer_gosec:
+	docker build -f build/docker/Dockerfile-producer-gosec -t dracon/producer/gosec:latest .
+image_producer_spotbugs:
+	docker build -f build/docker/Dockerfile-producer-spotbugs -t dracon/producer/spotbugs:latest .
+
+image_tools: image_bandit image_spotbugs
+image_bandit:
+	docker build -f build/docker/Dockerfile-bandit -t dracon/bandit:latest .
+image_spotbugs:
+	docker build -f build/docker/Dockerfile-spotbugs -t dracon/spotbugs:latest .
+
 image_enricher:
-	docker build -f images/Dockerfile-enricher -t dracon/enrichment:latest .
+	docker build -f build/docker/Dockerfile-enricher -t dracon/enrichment:latest .
 
+image_consumers: image_consumer_stdout image_consumer_elasticsearch
 image_consumer_stdout:
-	docker build -f images/Dockerfile-consumer-stdout_json -t dracon/consumer/stdout-json:latest .
-
+	docker build -f build/docker/Dockerfile-consumer-stdout_json -t dracon/consumer/stdout-json:latest .
 image_consumer_elasticsearch:
-	docker build -f images/Dockerfile-consumer-elasticsearch -t dracon/consumer/elasticsearch:latest .
+	docker build -f build/docker/Dockerfile-consumer-elasticsearch -t dracon/consumer/elasticsearch:latest .
 
-
-images: image_producer_bandit image_enricher image_consumer_stdout image_consumer_elasticsearch
+images: image_tools image_producers image_enricher image_consumers
 
 
 test_producers:

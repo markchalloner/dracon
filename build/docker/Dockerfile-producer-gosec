@@ -1,0 +1,10 @@
+FROM golang:alpine AS builder
+
+COPY . /app
+WORKDIR /app
+RUN go build -o /dist/golang_gosec producers/golang_gosec/main.go
+
+FROM scratch
+
+COPY --from=builder /dist/golang_gosec /parse
+ENTRYPOINT ["/parse"]
