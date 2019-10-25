@@ -17,35 +17,46 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/thought-machine/dracon/pkg/kubernetes"
+	"github.com/thought-machine/dracon/pkg/template"
 )
+
+var opts struct {
+	Path string
+}
 
 // setupCmd represents the setup command
 var setupCmd = &cobra.Command{
 	Use:   "setup",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Setup a new Dracon Pipeline",
+	Long:  `Use setup to help with setting up a new Dracon pipeline.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("setup called")
+		tmpl := template.Template{}
+		err := tmpl.LoadAll(opts.Path)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to load templates: %s\n", err)
+			os.Exit(2)
+		}
+		c, err := tmpl.String()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to load templates: %s\n", err)
+			os.Exit(2)
+		}
+		err = kubernetes.Apply(c)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to apply templates: %s\n", err)
+			os.Exit(2)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(setupCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// setupCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// setupCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	setupCmd.Flags().StringVarP(&opts.Path, "path", "p", "", "Path to load templates from")
+	setupCmd.MarkFlagRequired("path")
 }
