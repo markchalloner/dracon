@@ -18,7 +18,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/thought-machine/dracon-private/pkg/version"
+	"github.com/thought-machine/dracon/pkg/version"
 
 	"github.com/spf13/cobra"
 )
