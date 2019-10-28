@@ -6,7 +6,8 @@ import sys
 import logging
 import utils.db_utils as db
 
-from gen import engine_pb2, issue_pb2
+from gen.issue_pb2 import *
+from gen.engine_pb2 import *
 from utils.file_utils import load_files
 from datetime import datetime
 
@@ -17,8 +18,8 @@ class EnrichmentService():
 
     def __init__(self, config):
         try:
-            self.read_pvc_location = config['read_pvc_location']
-            self.write_pvc_location = config['write_pvc_location']
+            self.read_location = config['read_location']
+            self.write_location = config['write_location']
             self.db_uri = config['db_uri']
             self.dracon_db = db.DraconDBHelper()
             self.dracon_db.connect(self.db_uri)
@@ -26,7 +27,7 @@ class EnrichmentService():
             logger.error('PVC location or db_uri not provided')
             raise
 
-    def _md5_hash(self, issue: issue_pb2.Issue):
+    def _md5_hash(self, issue: Issue):
         md = hashlib.md5()
         md.update(("" + issue.target + issue.type +
                    issue.title).encode("ascii"))
@@ -36,11 +37,11 @@ class EnrichmentService():
         md.update(str(issue.description).encode('ascii'))
         return str(md.hexdigest())
 
-    def enrich_single_issue(self, orig_issue: issue_pb2.Issue) -> (issue_pb2.EnrichedIssue, str):
+    def enrich_single_issue(self, orig_issue: Issue) -> (EnrichedIssue, str):
         """ Given a single result returns an enriched result
         :return: tupple containing enriched result pb message and it's hash
         """
-        enriched_issue = issue_pb2.EnrichedIssue()
+        enriched_issue = EnrichedIssue()
         enriched_issue.raw_issue.CopyFrom(orig_issue)
         enriched_issue.false_positive = False
 
@@ -69,13 +70,13 @@ class EnrichmentService():
         return enriched_issue, issue_hash
 
     def enrich_tool_response(self,
-                             tool_response: engine_pb2.LaunchToolResponse = None) -> \
-            engine_pb2.EnrichedLaunchToolResponse:
+                             tool_response: LaunchToolResponse = None) -> \
+            EnrichedLaunchToolResponse:
         """
         Given a single tool response with issues produce an enriched tool response
         :return: enriched tool response pb message
         """
-        enriched_tool_results = engine_pb2.EnrichedLaunchToolResponse()
+        enriched_tool_results = EnrichedLaunchToolResponse()
         enriched_issues = {}
         for issue in tool_response.issues:
             enriched_issue, issue_hash = self.enrich_single_issue(
@@ -91,9 +92,9 @@ class EnrichmentService():
         Load a set of LaunchToolResponse protobufs, enrich them, and
         store them for a consumer to pick up in the future
         """
-        scan_results = engine_pb2.LaunchToolResponse()
+        scan_results = LaunchToolResponse()
         collected_enriched_results = []
-        collected_results = load_files(scan_results, self.read_pvc_location)
+        collected_results = load_files(scan_results, self.read_location)
 
         for results in collected_results:  # loop over tool responses
             enriched_res = self.enrich_tool_response(tool_response=results)
@@ -109,7 +110,7 @@ class EnrichmentService():
             raw_result = result.original_results
 
             # Uses the b64 encoded scan uuid as the filename for the result
-            filepath = self.write_pvc_location + "/" + \
+            filepath = self.write_location + "/" + \
                 raw_result.scan_info.scan_uuid + '.pb'
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
@@ -131,11 +132,11 @@ def setup(db_uri):
 
 def main(stdin):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--read_pvc_location',
-                        default=os.environ.get('DRACON_READ_PVC_LOCATION'),
+    parser.add_argument('--read_location',
+                        default=os.environ.get('DRACON_READ_LOCATION'),
                         help='The location which stores LaunchToolResponses')
-    parser.add_argument('--write_pvc_location',
-                        default=os.environ.get('DRACON_WRITE_PVC_LOCATION'),
+    parser.add_argument('--write_location',
+                        default=os.environ.get('DRACON_WRITE_LOCATION'),
                         help='The location to write enriched results to')
     parser.add_argument('--db_uri',
                         default=os.environ.get('DRACON_ENRICHMENT_DB_URI'),
@@ -149,13 +150,12 @@ def main(stdin):
         print("Setting up db tables")
         setup(args['db_uri'])
         print('Table setup complete!')
-        exit(0)
 
     enricher = EnrichmentService(args)
     collected_results = enricher.enrich_results()
     print("Enriched %s results " % len(collected_results))
     enricher.store_enriched_results(collected_results)
-    print("Stored enriched results at %s" % args['write_pvc_location'])
+    print("Stored enriched results at %s" % args['write_location'])
 
 
 if __name__ == '__main__':

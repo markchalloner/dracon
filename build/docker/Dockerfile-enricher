@@ -4,7 +4,7 @@ COPY --chown=app:app . /home/app/dracon
 
 WORKDIR /home/app/dracon/
 RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev &&\
-    pip3 install protobuf google psycopg2-binary
+  pip3 install protobuf google psycopg2-binary
 
 USER app
 ENV PYTHONPATH=$PYTHONPATH:/home/app/dracon

@@ -21,3 +21,5 @@ do_gen() {
 
 do_gen "go" "${PWD}/pkg/genproto/v1"
 do_gen "python" "${PWD}/gen"
+# This fixes protobuf generation for python (https://github.com/protocolbuffers/protobuf/issues/1491#issuecomment-438138293)
+sed -i -E 's/^import.*_pb2/from . \0/' gen/*.py
