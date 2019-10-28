@@ -26,7 +26,6 @@ func main() {
 
 	if err := producers.WriteDraconOut(
 		"spotbugs",
-		"",
 		time.Now(),
 		issues,
 	); err != nil {

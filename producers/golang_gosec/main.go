@@ -23,7 +23,6 @@ func main() {
 
 	if err := producers.WriteDraconOut(
 		"gosec",
-		"",
 		time.Now(),
 		issues,
 	); err != nil {

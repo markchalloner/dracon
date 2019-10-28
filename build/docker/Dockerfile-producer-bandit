@@ -2,6 +2,7 @@ FROM golang:alpine AS builder
 
 COPY . /app
 WORKDIR /app
+ENV CGO_ENABLED=0
 RUN go build -o /dist/python_bandit producers/python_bandit/main.go
 
 FROM scratch

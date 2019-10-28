@@ -26,7 +26,6 @@ func main() {
 
 	if err := producers.WriteDraconOut(
 		"bandit",
-		"",
 		time.Now(),
 		issues,
 	); err != nil {

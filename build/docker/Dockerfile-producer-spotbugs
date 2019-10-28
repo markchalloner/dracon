@@ -2,6 +2,7 @@ FROM golang:alpine AS builder
 
 COPY . /app
 WORKDIR /app
+ENV CGO_ENABLED=0
 RUN go build -o /dist/java_spotbugs producers/java_spotbugs/main.go
 
 FROM scratch
