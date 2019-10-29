@@ -8,7 +8,9 @@ import (
 	"log"
 	"time"
 
-	elasticsearch "github.com/elastic/go-elasticsearch/v7"
+	elasticsearchv5 "github.com/elastic/go-elasticsearch/v5"
+	elasticsearchv6 "github.com/elastic/go-elasticsearch/v6"
+	elasticsearchv7 "github.com/elastic/go-elasticsearch/v7"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/thought-machine/dracon/consumers"
 	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
@@ -40,8 +42,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	es, err := elasticsearch.NewDefaultClient()
-	if err != nil {
+	if err := getESClient(); err != nil {
 		log.Fatal(err)
 	}
 
@@ -57,7 +58,7 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				esPush(es, b)
+				esPush(b)
 			}
 		}
 	} else {
@@ -72,7 +73,7 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				esPush(es, b)
+				esPush(b)
 			}
 		}
 	}
@@ -119,16 +120,6 @@ func getEnrichedIssue(scanStartTime time.Time, res *v1.EnrichedLaunchToolRespons
 	return jBytes, nil
 }
 
-func esPush(es *elasticsearch.Client, b []byte) error {
-	resp, err := es.Index(esIndex, bytes.NewBuffer(b))
-	if err != nil {
-		return err
-	}
-
-	log.Println(resp)
-	return nil
-}
-
 type esDocument struct {
 	ScanStartTime time.Time     `json:"scan_start_time"`
 	ScanID        string        `json:"scan_id"`
@@ -142,4 +133,56 @@ type esDocument struct {
 	Description   string        `json:"description"`
 	FirstFound    time.Time     `json:"first_found"`
 	FalsePositive bool          `json:"false_positive"`
+}
+
+var esClient interface{}
+
+func getESClient() error {
+	es, err := elasticsearchv7.NewDefaultClient()
+	if err != nil {
+		return err
+	}
+
+	type esInfo struct {
+		Version struct {
+			Number string `json:"number"`
+		} `json:"version"`
+	}
+
+	res, err := es.Info()
+	if err != nil {
+		return err
+	}
+	var info esInfo
+	if err := json.NewDecoder(res.Body).Decode(&info); err != nil {
+		return err
+	}
+	switch info.Version.Number[0] {
+	case '5':
+		esClient, err = elasticsearchv5.NewDefaultClient()
+	case '6':
+		esClient, err = elasticsearchv6.NewDefaultClient()
+	case '7':
+		esClient, err = elasticsearchv7.NewDefaultClient()
+	default:
+		err = fmt.Errorf("unsupported version %s", info.Version.Number)
+	}
+	return err
+}
+
+func esPush(b []byte) error {
+	var err error
+	var res interface{}
+	switch x := esClient.(type) {
+	case *elasticsearchv5.Client:
+		res, err = x.Index(esIndex, bytes.NewBuffer(b), x.Index.WithDocumentType("doc"))
+	case *elasticsearchv6.Client:
+		res, err = x.Index(esIndex, bytes.NewBuffer(b), x.Index.WithDocumentType("doc"))
+	case *elasticsearchv7.Client:
+		res, err = x.Index(esIndex, bytes.NewBuffer(b))
+	default:
+		err = fmt.Errorf("unsupported client %T", esClient)
+	}
+	log.Printf("%+v", res)
+	return err
 }
