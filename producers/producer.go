@@ -1,6 +1,7 @@
 package producers
 
 import (
+	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -59,7 +60,7 @@ func WriteDraconOut(
 			ScanUuid:      uuid.New().String(),
 			ScanStartTime: &timestamp.Timestamp{},
 		},
-		ToolName: "bandit",
+		ToolName: toolName,
 		Issues:   issues,
 	}
 
@@ -67,6 +68,8 @@ func WriteDraconOut(
 	if err != nil {
 		return err
 	}
+
+	outBytes = bytes.Replace(outBytes, []byte("/dracon/source"), []byte("."), -1)
 
 	if err := ioutil.WriteFile(outFile, outBytes, 0644); err != nil {
 		return err
