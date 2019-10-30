@@ -8,4 +8,5 @@ RUN go build -o /dist/elasticsearch_consumer consumers/elasticsearch_c/main.go
 FROM scratch
 
 COPY --from=builder /dist/elasticsearch_consumer /consume
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 ENTRYPOINT ["/consume"]
