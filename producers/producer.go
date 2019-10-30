@@ -1,16 +1,16 @@
 package producers
 
 import (
-	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
 )
@@ -19,6 +19,8 @@ var (
 	inResults string
 	outFile   string
 )
+
+const sourceDir = "/dracon/source"
 
 func init() {
 	flag.StringVar(&inResults, "in", "", "")
@@ -55,10 +57,21 @@ func WriteDraconOut(
 	scanStartTime time.Time,
 	issues []*v1.Issue,
 ) error {
+	cleanIssues := []*v1.Issue{}
+	for _, iss := range issues {
+		iss.Description = strings.TrimPrefix(iss.Description, sourceDir)
+		iss.Title = strings.TrimPrefix(iss.Title, sourceDir)
+		iss.Target = strings.TrimPrefix(iss.Target, sourceDir)
+		cleanIssues = append(cleanIssues, iss)
+	}
+	protoTime, err := ptypes.TimestampProto(scanStartTime)
+	if err != nil {
+		return err
+	}
 	out := v1.LaunchToolResponse{
 		ScanInfo: &v1.ScanInfo{
 			ScanUuid:      uuid.New().String(),
-			ScanStartTime: &timestamp.Timestamp{},
+			ScanStartTime: protoTime,
 		},
 		ToolName: toolName,
 		Issues:   issues,
@@ -68,8 +81,6 @@ func WriteDraconOut(
 	if err != nil {
 		return err
 	}
-
-	outBytes = bytes.Replace(outBytes, []byte("/dracon/source"), []byte("."), -1)
 
 	if err := ioutil.WriteFile(outFile, outBytes, 0644); err != nil {
 		return err
