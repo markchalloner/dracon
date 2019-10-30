@@ -17,14 +17,12 @@ import (
 )
 
 var (
-	dryRun  bool
 	esURL   string
 	esIndex string
 )
 
 func init() {
-	flag.BoolVar(&dryRun, "dry-run", false, "")
-	flag.StringVar(&esIndex, "es-index", "", "")
+	flag.StringVar(&esIndex, "es-index", "", "the index in elasticsearch to push results to")
 }
 
 func parseFlags() error {
