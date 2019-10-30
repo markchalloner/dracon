@@ -1,0 +1,37 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: dracon-bandit-producer
+spec:
+  inputs: {resources: [{name: source, type: storage}]}
+  outputs: {resources: [{name: producer-out, type: storage}]}
+  volumes: [{emptyDir: {}, name: dracon-ws}]
+  steps:
+  # extract source and setup
+  - name: extract-source
+    image: busybox:latest
+    command: ["sh"]
+    args: ["-c",
+      "mkdir -p /dracon/source && tar -C /dracon/source -xzf /workspace/source/source.tgz && chown -R 1000:1000 /workspace/output/producer-out /dracon"
+    ]
+    volumeMounts: [{mountPath: /dracon, name: dracon-ws}]
+  # run bandit
+  - name: run-bandit
+    image: dracon/bandit:latest
+    imagePullPolicy: Never
+    command: ["sh"]
+    args: ["-c",
+      "bandit --recursive /dracon/source --format json --output /dracon/results.json || true"
+    ]
+    volumeMounts: [{mountPath: /dracon, name: dracon-ws}]
+  # parse results
+  - name: parse-bandit
+    image: dracon/producer/bandit:latest
+    imagePullPolicy: Never
+    command: ["/parse"]
+    args: [
+      "-in=/dracon/results.json",
+      "-out=/workspace/output/producer-out/results.pb"
+    ]
+    volumeMounts: [{mountPath: /dracon, name: dracon-ws}]
