@@ -26,18 +26,18 @@ import (
 	"github.com/thought-machine/dracon/pkg/template"
 )
 
-var setupOpts struct {
+var runOpts struct {
 	Path string
 }
 
-// setupCmd represents the setup command
-var setupCmd = &cobra.Command{
-	Use:   "setup",
-	Short: "Setup a new Dracon Pipeline",
-	Long:  `Use setup to help with setting up a new Dracon pipeline.`,
+// runCmd represents the setup command
+var runCmd = &cobra.Command{
+	Use:   "run",
+	Short: "Run Dracon Pipeline",
+	Long:  `Use run to execute a Dracon pipeline-run.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		tmpl := template.NewTemplater()
-		err := tmpl.LoadAll(setupOpts.Path)
+		err := tmpl.Load(runOpts.Path)
 		if err != nil {
 			return err
 		}
@@ -56,8 +56,8 @@ var setupCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(setupCmd)
+	rootCmd.AddCommand(runCmd)
 
-	setupCmd.Flags().StringVarP(&setupOpts.Path, "path", "p", "", "Path to load templates from")
-	setupCmd.MarkFlagRequired("path")
+	runCmd.Flags().StringVarP(&runOpts.Path, "path", "p", "", "Path to load template from")
+	runCmd.MarkFlagRequired("path")
 }

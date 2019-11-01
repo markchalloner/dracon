@@ -3,6 +3,7 @@ package kubernetes
 import (
 	"fmt"
 	"io"
+	"log"
 	"os/exec"
 )
 
@@ -19,5 +20,9 @@ func Apply(config string) error {
 	}()
 
 	output, err := cmd.CombinedOutput()
-	return fmt.Errorf("%s", output)
+	log.Printf("out: %s", output)
+	if !cmd.ProcessState.Success() {
+		return fmt.Errorf("failed to apply: %s", output)
+	}
+	return nil
 }

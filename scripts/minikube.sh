@@ -3,23 +3,21 @@
 # ES and Kibana
 minikube addons enable efk
 
+kubectl config use-context minikube
 kubectl create ns dracon
+kubectl config set-context --namespace=dracon
 
 # Enricher DB
-kubectl --context minikube -n dracon apply -f templates/resources/enricher-db/k8s.yaml
+kubectl apply -f templates/resources/enricher-db/k8s.yaml
 
 # Minio
-kubectl --context minikube -n dracon apply -f templates/resources/minio-storage/k8s.yaml
-
-# Example source codes from Git
-kubectl --context minikube -n dracon apply -f templates/resources/git-ssh-example.yaml
-kubectl --context minikube -n dracon apply -f templates/resources/git-https-example.yaml
-
-# Dracon Tasks
-cat templates/tasks/*.yaml | kubectl --context minikube -n dracon apply -f-
+kubectl apply -f templates/resources/minio-storage/k8s.yaml
 
 # Dracon Pipeline
-kubectl --context minikube -n dracon apply -f templates/pipeline.yaml
+go run cmd/dracon/main.go setup --path templates/pipeline
 
-echo "To run Dracon pipeline:"
-echo "kubectl --context minikube -n dracon apply -f templates/pipeline-run.yaml"
+# Dracon Run Pipeline
+go run cmd/dracon/main.go run --path templates/run/git-ssh.pipeline-run.yaml
+go run cmd/dracon/main.go run --path templates/run/pipeline-run.yaml
+
+kubectl get pod

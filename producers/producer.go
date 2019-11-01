@@ -59,9 +59,9 @@ func WriteDraconOut(
 ) error {
 	cleanIssues := []*v1.Issue{}
 	for _, iss := range issues {
-		iss.Description = strings.TrimPrefix(iss.Description, sourceDir)
-		iss.Title = strings.TrimPrefix(iss.Title, sourceDir)
-		iss.Target = strings.TrimPrefix(iss.Target, sourceDir)
+		iss.Description = strings.Replace(iss.Description, sourceDir, ".", -1)
+		iss.Title = strings.Replace(iss.Title, sourceDir, ".", -1)
+		iss.Target = strings.Replace(iss.Target, sourceDir, ".", -1)
 		cleanIssues = append(cleanIssues, iss)
 	}
 	protoTime, err := ptypes.TimestampProto(scanStartTime)

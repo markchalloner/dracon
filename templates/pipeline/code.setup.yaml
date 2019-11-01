@@ -1,0 +1,16 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: dracon-source
+spec:
+  inputs: {resources: [{name: git-source, type: git}]}
+  outputs: {resources: [{name: source, type: storage}]}
+  steps:
+  - name: copy-source
+    image: busybox:latest
+    command: ["tar"]
+    args: [
+      "-C", "/workspace/git-source/", "-czf", "/workspace/output/source/source.tgz", "."
+    ]
+    resources: {}
