@@ -15,12 +15,12 @@ class Consumer(ABC):
     @abstractmethod
     def __init__(self, config: dict):
         try:
-            self.pvc_location = config['pvc_location']
+            self.pb_location = config['pb_location']
         except(KeyError):
             logger.error('PVC location not provided')
             raise
 
-        logger.info('Instantiated Consumer class with results at ' + self.pvc_location)
+        logger.info('Instantiated Consumer class with results at ' + self.pb_location)
 
     @abstractmethod
     def load_results(self):
@@ -29,7 +29,7 @@ class Consumer(ABC):
         """
 
         scan_results = engine_pb2.EnrichedLaunchToolResponse()
-        collected_results = load_files(scan_results, self.pvc_location)
+        collected_results = load_files(scan_results, self.pb_location)
 
         return collected_results
 
