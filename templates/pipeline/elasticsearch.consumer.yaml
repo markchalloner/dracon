@@ -4,21 +4,22 @@ kind: Task
 metadata:
   name: {{.Consumer.Name "elasticsearch"}}
 spec:
-  inputs: {resources: [{{.Consumer.SpecInputResource}}], params: [{name: draconRunID, type: string}]}
+  inputs: {resources: [{{.Consumer.SpecInputResource}}], params: [{{.Consumer.SpecInputParams}}]}
   steps:
   # run elasticsearch consumer
-  # - name: run-elasticsearch-consumer
-  #   image: dracon/consumer/elasticsearch:latest
-  #   imagePullPolicy: Never
-  #   env:
-  #   - name: ELASTICSEARCH_URL
-  #     value: http://elasticsearch-logging.kube-system:9200
-  #   command: ["/consume"]
-  #   args: [
-  #     "-in", "{{.Consumer.SourcePath}}",
-  #     "-es-index", "dracon"
-  #   ]
+  - name: run-elasticsearch-consumer
+    image: dracon/consumer/elasticsearch:latest
+    imagePullPolicy: Never
+    env: [
+      {{.Consumer.EnvVars}},
+      {name: ELASTICSEARCH_URL, value: http://elasticsearch-logging.kube-system:9200}
+    ]
+    command: ["/consume"]
+    args: [
+      "-in", "{{.Consumer.SourcePath}}",
+      "-es-index", "dracon"
+    ]
   - name: test
     image: busybox:latest
     command: ["echo"]
-    args: ["$(inputs.params.draconRunID)"]
+    args: ["{{.Consumer.ParamRunID}}"]

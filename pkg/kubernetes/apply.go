@@ -20,6 +20,9 @@ func Apply(config string) error {
 	}()
 
 	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
 	log.Printf("out: %s", output)
 	if !cmd.ProcessState.Success() {
 		return fmt.Errorf("failed to apply: %s", output)

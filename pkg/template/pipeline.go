@@ -17,6 +17,23 @@ type pipeline struct {
 	TaskEnricherOutResource string
 }
 
+var params = []pipelineParam{
+	{
+		"draconRunId",
+		"Dracon: Unique Run ID",
+		"string",
+		RuntimePrefix,
+	},
+}
+
+type pipelineParam struct {
+	name        string
+	description string
+	pType       string
+
+	value string
+}
+
 func newPipeline() pipeline {
 	return pipeline{
 		SourceResource:          fmt.Sprintf("{type: storage, name: %s}", SourceResource),
@@ -47,4 +64,30 @@ func (pipeline) TaskEnricherInputResources(names ...string) string {
 		names[i] = fmt.Sprintf("{name: %[1]s-%[2]s, resource: %[1]s-%[2]s}", ProducerResource, s)
 	}
 	return strings.Join(names, ",")
+}
+
+func (pipeline) Params() string {
+	res := []string{}
+	for _, p := range params {
+		res = append(res,
+			fmt.Sprintf(
+				`{name: "%s", description: "%s", type: "%s"}`,
+				p.name, p.description, p.pType,
+			),
+		)
+	}
+	return strings.Join(res, ",")
+}
+
+func (pipeline) ConsumerParams() string {
+	res := []string{}
+	for _, p := range params {
+		res = append(res,
+			fmt.Sprintf(
+				`{name: "%s", value: "%s"}`,
+				p.name, fmt.Sprintf("$(params.%s)", p.name),
+			),
+		)
+	}
+	return strings.Join(res, ",")
 }

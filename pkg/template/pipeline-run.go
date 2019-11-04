@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-var ()
-
 type pipelineRun struct{}
 
 func newPipelineRun() pipelineRun {
@@ -35,4 +33,14 @@ func (pipelineRun) ResourceProducers(names ...string) string {
 func (pipelineRun) ResourceEnricher() string {
 	enricherID := pipelineResource{}.EnricherID()
 	return fmt.Sprintf("{name: %s, resourceRef: {name: %s}}", EnricherResource, enricherID)
+}
+
+func (pipelineRun) Params() string {
+	res := []string{}
+
+	for _, p := range params {
+		res = append(res, fmt.Sprintf(`{name: "%s", value: "%s"}`, p.name, p.value))
+	}
+
+	return strings.Join(res, ",")
 }

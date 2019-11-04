@@ -4,11 +4,7 @@ kind: Pipeline
 metadata:
   name: {{.Pipeline.Name "demo"}}
 spec:
-  params:
-    - name: draconRunID
-      type: string
-      description: draconRunID
-      default: "no"
+  params: [{{.Pipeline.Params}}]
   resources:
   - {type: git, name: git-source}
   - {{.Pipeline.ProducerResources "bandit" "gosec"}}
@@ -51,7 +47,7 @@ spec:
   - name: elasticsearch-consumer
     runAfter: [enricher]
     taskRef: {name: {{.Consumer.Name "elasticsearch"}}}
-    params: [{name: draconRunID, value: "$(params.draconRunID)"}]
+    params: [{{.Pipeline.ConsumerParams}}]
     resources:
       inputs: [{{.Pipeline.TaskEnricherOutResource}}]
       outputs: []

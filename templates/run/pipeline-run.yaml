@@ -63,9 +63,9 @@ metadata:
   name: {{.PipelineRun.Name "demo"}}
 spec:
   pipelineRef: {name: {{.Pipeline.Name "demo"}}}
-  params:
-    - name: draconRunID
-      value: "{{.PipelineResource.ID ""}}"
+  params: [
+    {{.PipelineRun.Params}}
+  ]
   podTemplate: {}
   # serviceAccount: git-github-thoughtmachine-please # replace with desired git source service account (if needed)
   resources:
