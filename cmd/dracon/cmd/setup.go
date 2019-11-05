@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -45,7 +44,6 @@ var setupCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		log.Println(c)
 		err = kubernetes.Apply(c)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Failed to apply templates: %s\n", err)
