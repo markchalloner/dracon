@@ -40,7 +40,7 @@ func TestWriteDraconOut(t *testing.T) {
 	aT, err := ptypes.Timestamp(res.GetScanInfo().GetScanStartTime())
 	assert.Nil(t, err)
 	assert.Equal(t, startTime, aT)
-	assert.Equal(t, "/foobar", res.GetIssues()[0].GetTarget())
-	assert.Equal(t, "/barfoo", res.GetIssues()[0].GetTitle())
-	assert.Equal(t, "/example.yaml", res.GetIssues()[0].GetDescription())
+	assert.Equal(t, "./foobar", res.GetIssues()[0].GetTarget())
+	assert.Equal(t, "./barfoo", res.GetIssues()[0].GetTitle())
+	assert.Equal(t, "./example.yaml", res.GetIssues()[0].GetDescription())
 }

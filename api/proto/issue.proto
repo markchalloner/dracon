@@ -31,6 +31,7 @@ message Issue {
     double cvss = 5;
     Confidence confidence = 6;
     string description = 7; // human readable description of the issue
+    string source = 8; // https://github.com/thought-machine/dracon.git?ref=<revision>, github.com:tektoncd/pipeline.git?ref=<revision>, local?ref=local
 }
 
 /* Represents an issue that has been enriched with metadata from the enrichment service */

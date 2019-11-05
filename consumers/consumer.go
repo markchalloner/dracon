@@ -8,8 +8,10 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
 )
 
@@ -42,7 +44,13 @@ func LoadToolResponse() ([]*v1.LaunchToolResponse, error) {
 			if err != nil {
 				return err
 			}
-			res := v1.LaunchToolResponse{}
+			scanInfo, err := getScanInfo()
+			if err != nil {
+				return err
+			}
+			res := v1.LaunchToolResponse{
+				ScanInfo: scanInfo,
+			}
 			if err := proto.Unmarshal(pbBytes, &res); err != nil {
 				log.Printf("skipping %s as unable to unmarshal", path)
 			} else {
@@ -69,6 +77,11 @@ func LoadEnrichedToolResponse() ([]*v1.EnrichedLaunchToolResponse, error) {
 			if err := proto.Unmarshal(pbBytes, &res); err != nil {
 				log.Printf("skipping %s as unable to unmarshal", path)
 			} else {
+				scanInfo, err := getScanInfo()
+				if err != nil {
+					return err
+				}
+				res.OriginalResults.ScanInfo = scanInfo
 				responses = append(responses, &res)
 			}
 		}
@@ -77,4 +90,19 @@ func LoadEnrichedToolResponse() ([]*v1.EnrichedLaunchToolResponse, error) {
 		return responses, err
 	}
 	return responses, nil
+}
+
+func getScanInfo() (*v1.ScanInfo, error) {
+	t, err := time.Parse(time.RFC3339, os.Getenv("DRACON_SCAN_TIME"))
+	if err != nil {
+		return nil, err
+	}
+	tp, err := ptypes.TimestampProto(t)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.ScanInfo{
+		ScanUuid:      os.Getenv("DRACON_SCAN_ID"),
+		ScanStartTime: tp,
+	}, nil
 }

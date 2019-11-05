@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='dracon.v1',
   syntax='proto3',
   serialized_options=_b('Z\002v1'),
-  serialized_pb=_b('\n\x0bissue.proto\x12\tdracon.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa9\x01\n\x05Issue\x12\x0e\n\x06target\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12%\n\x08severity\x18\x04 \x01(\x0e\x32\x13.dracon.v1.Severity\x12\x0c\n\x04\x63vss\x18\x05 \x01(\x01\x12)\n\nconfidence\x18\x06 \x01(\x0e\x32\x15.dracon.v1.Confidence\x12\x13\n\x0b\x64\x65scription\x18\x07 \x01(\t\"\x8b\x01\n\rEnrichedIssue\x12#\n\traw_issue\x18\x01 \x01(\x0b\x32\x10.dracon.v1.Issue\x12.\n\nfirst_seen\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05\x63ount\x18\x03 \x01(\x05\x12\x16\n\x0e\x66\x61lse_positive\x18\x04 \x01(\x08*z\n\nConfidence\x12\x13\n\x0f\x43ONFIDENCE_INFO\x10\x00\x12\x12\n\x0e\x43ONFIDENCE_LOW\x10\x01\x12\x15\n\x11\x43ONFIDENCE_MEDIUM\x10\x02\x12\x13\n\x0f\x43ONFIDENCE_HIGH\x10\x03\x12\x17\n\x13\x43ONFIDENCE_CRITICAL\x10\x04*n\n\x08Severity\x12\x11\n\rSEVERITY_INFO\x10\x00\x12\x10\n\x0cSEVERITY_LOW\x10\x01\x12\x13\n\x0fSEVERITY_MEDIUM\x10\x02\x12\x11\n\rSEVERITY_HIGH\x10\x03\x12\x15\n\x11SEVERITY_CRITICAL\x10\x04\x42\x04Z\x02v1b\x06proto3')
+  serialized_pb=_b('\n\x0bissue.proto\x12\tdracon.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb9\x01\n\x05Issue\x12\x0e\n\x06target\x18\x01 \x01(\t\x12\x0c\n\x04type\x18\x02 \x01(\t\x12\r\n\x05title\x18\x03 \x01(\t\x12%\n\x08severity\x18\x04 \x01(\x0e\x32\x13.dracon.v1.Severity\x12\x0c\n\x04\x63vss\x18\x05 \x01(\x01\x12)\n\nconfidence\x18\x06 \x01(\x0e\x32\x15.dracon.v1.Confidence\x12\x13\n\x0b\x64\x65scription\x18\x07 \x01(\t\x12\x0e\n\x06source\x18\x08 \x01(\t\"\x8b\x01\n\rEnrichedIssue\x12#\n\traw_issue\x18\x01 \x01(\x0b\x32\x10.dracon.v1.Issue\x12.\n\nfirst_seen\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\r\n\x05\x63ount\x18\x03 \x01(\x05\x12\x16\n\x0e\x66\x61lse_positive\x18\x04 \x01(\x08*z\n\nConfidence\x12\x13\n\x0f\x43ONFIDENCE_INFO\x10\x00\x12\x12\n\x0e\x43ONFIDENCE_LOW\x10\x01\x12\x15\n\x11\x43ONFIDENCE_MEDIUM\x10\x02\x12\x13\n\x0f\x43ONFIDENCE_HIGH\x10\x03\x12\x17\n\x13\x43ONFIDENCE_CRITICAL\x10\x04*n\n\x08Severity\x12\x11\n\rSEVERITY_INFO\x10\x00\x12\x10\n\x0cSEVERITY_LOW\x10\x01\x12\x13\n\x0fSEVERITY_MEDIUM\x10\x02\x12\x11\n\rSEVERITY_HIGH\x10\x03\x12\x15\n\x11SEVERITY_CRITICAL\x10\x04\x42\x04Z\x02v1b\x06proto3')
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -55,8 +55,8 @@ _CONFIDENCE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=373,
-  serialized_end=495,
+  serialized_start=389,
+  serialized_end=511,
 )
 _sym_db.RegisterEnumDescriptor(_CONFIDENCE)
 
@@ -90,8 +90,8 @@ _SEVERITY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=497,
-  serialized_end=607,
+  serialized_start=513,
+  serialized_end=623,
 )
 _sym_db.RegisterEnumDescriptor(_SEVERITY)
 
@@ -165,6 +165,13 @@ _ISSUE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='source', full_name='dracon.v1.Issue.source', index=7,
+      number=8, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -178,7 +185,7 @@ _ISSUE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=60,
-  serialized_end=229,
+  serialized_end=245,
 )
 
 
@@ -229,8 +236,8 @@ _ENRICHEDISSUE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=232,
-  serialized_end=371,
+  serialized_start=248,
+  serialized_end=387,
 )
 
 _ISSUE.fields_by_name['severity'].enum_type = _SEVERITY

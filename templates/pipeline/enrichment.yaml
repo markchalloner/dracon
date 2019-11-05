@@ -2,20 +2,16 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: dracon-enrichment
+  name: {{.Enrichment.Name}}
+  labels:
+    project: dracon
 spec:
   inputs: {resources: [
-    {name: bandit-out, type: storage},
-    {name: gosec-out, type: storage},
-    # {name: spotbugs-out, type: storage},
+    {{.Enrichment.InResources "bandit" "gosec"}}
   ]}
-  outputs: {resources: [{name: enricher-out, type: storage}]}
+  outputs: {resources: [{name: {{.Enrichment.OutResource}}, type: storage}]}
   steps:
-  # update permissions
-  - name: setup-permissions
-    image: busybox:latest
-    command: ["chown"]
-    args: ["-R", "1000:1000", "/workspace/output/enricher-out"]
+  - {{.Enrichment.StepSetup}}
   # run enricher
   - name: run-enricher
     image: dracon/enrichment:latest
@@ -24,7 +20,7 @@ spec:
     - name: DRACON_READ_LOCATION
       value: /workspace
     - name: DRACON_WRITE_LOCATION
-      value: /workspace/output/enricher-out
+      value: {{.Enrichment.OutPath}}
     - name: DRACON_ENRICHMENT_DB_URI
       value: "postgresql://dracon:dracon@dracon-enrichment-db"
     command: ["sh"]
