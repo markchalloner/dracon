@@ -3,6 +3,8 @@ apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   name: {{.Enrichment.Name}}
+  labels:
+    project: dracon
 spec:
   inputs: {resources: [
     {{.Enrichment.InResources "bandit" "gosec"}}

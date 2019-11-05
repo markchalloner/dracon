@@ -3,6 +3,8 @@ apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
   name: {{.Producer.Name "spotbugs"}}
+  labels:
+    project: dracon
 spec:
   inputs: {resources: [{{.Producer.InResource}}]}
   outputs: {resources: [{{.Producer.OutResource}}]}

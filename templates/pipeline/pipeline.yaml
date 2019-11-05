@@ -3,6 +3,8 @@ apiVersion: tekton.dev/v1alpha1
 kind: Pipeline
 metadata:
   name: {{.Pipeline.Name "demo"}}
+  labels:
+    project: dracon
 spec:
   params: [{{.Pipeline.Params}}]
   resources:

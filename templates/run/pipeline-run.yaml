@@ -2,7 +2,10 @@
 # source archive
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
-metadata: {name: {{.PipelineResource.SourceID}}}
+metadata:
+  name: {{.PipelineResource.SourceID}}
+  labels:
+    project: dracon
 spec:
   type: storage
   params: [{name: location, value: s3://dracon/{{.PipelineResource.SourceID}}}, {name: type, value: gcs}, {name: dir, value: "y"}]
@@ -11,7 +14,10 @@ spec:
 # bandit out
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
-metadata: {name: {{.PipelineResource.ProducerID "bandit"}}}
+metadata:
+  name: {{.PipelineResource.ProducerID "bandit"}}
+  labels:
+    project: dracon
 spec:
   type: storage
   params: [{name: location, value: s3://dracon/{{.PipelineResource.ProducerID "bandit"}}}, {name: type, value: gcs}, {name: dir, value: "y"}]
@@ -20,7 +26,10 @@ spec:
 # gosec out
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
-metadata: {name: {{.PipelineResource.ProducerID "gosec"}}}
+metadata:
+  name: {{.PipelineResource.ProducerID "gosec"}}
+  labels:
+    project: dracon
 spec:
   type: storage
   params: [{name: location, value: s3://dracon/{{.PipelineResource.ProducerID "gosec"}}}, {name: type, value: gcs}, {name: dir, value: "y"}]
@@ -29,7 +38,10 @@ spec:
 # spotbugs out
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
-metadata: {name: {{.PipelineResource.ProducerID "spotbugs"}}}
+metadata:
+  name: {{.PipelineResource.ProducerID "spotbugs"}}
+  labels:
+    project: dracon
 spec:
   type: storage
   params: [{name: location, value: s3://dracon/{{.PipelineResource.ProducerID "spotbugs"}}}, {name: type, value: gcs}, {name: dir, value: "y"}]
@@ -38,7 +50,10 @@ spec:
 # enricher out
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
-metadata: {name: {{.PipelineResource.EnricherID}}}
+metadata:
+  name: {{.PipelineResource.EnricherID}}
+  labels:
+    project: dracon
 spec:
   type: storage
   params: [{name: location, value: s3://dracon/{{.PipelineResource.EnricherID}}}, {name: type, value: gcs}, {name: dir, value: "y"}]
@@ -47,7 +62,10 @@ spec:
 # git+https config
 apiVersion: tekton.dev/v1alpha1
 kind: PipelineResource
-metadata: {name: {{.PipelineResource.ID "git-github-thoughtmachine-please" }}}
+metadata:
+  name: {{.PipelineResource.ID "git-github-thoughtmachine-please" }}
+  labels:
+    project: dracon
 spec:
   type: git
   params:
@@ -61,6 +79,8 @@ apiVersion: tekton.dev/v1alpha1
 kind: PipelineRun
 metadata:
   name: {{.PipelineRun.Name "demo"}}
+  labels:
+    project: dracon
 spec:
   pipelineRef: {name: {{.Pipeline.Name "demo"}}}
   params: [

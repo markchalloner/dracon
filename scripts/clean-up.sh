@@ -2,7 +2,7 @@
 
 function deleteAll() {
   local resource=$1
-  kubectl get $resource -o custom-columns=NAME:.metadata.name | tail -n+2 | xargs kubectl delete $resource
+  kubectl get $resource -l project=dracon -o custom-columns=NAME:.metadata.name | tail -n+2 | xargs kubectl delete $resource
 }
 
 deleteAll "pipelineruns.tekton.dev"
