@@ -48,7 +48,7 @@ func (consumer) EnvVars() string {
 		res = append(res,
 			fmt.Sprintf(
 				`{name: "%s", value: "%s"}`,
-				p.name, fmt.Sprintf("$(inputs.params.%s)"+p.name),
+				p.name, fmt.Sprintf("$(inputs.params.%s)", p.name),
 			),
 		)
 	}

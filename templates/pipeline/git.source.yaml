@@ -1,0 +1,13 @@
+---
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: git-source
+spec:
+  inputs: {resources: [{name: git-source, type: git}]}
+  outputs: {resources: [{name: source, type: storage}]}
+  steps:
+  - name: git-source
+    image: dracon/source/git
+    imagePullPolicy: Never
+    command: ["/git.sh"]

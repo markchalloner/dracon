@@ -33,7 +33,11 @@ image_consumer_stdout:
 image_consumer_elasticsearch:
 	docker build -f build/docker/Dockerfile-consumer-elasticsearch -t dracon/consumer/elasticsearch:latest .
 
-images: image_tools image_producers image_enricher image_consumers
+image_sources: image_source_git
+image_source_git:
+	docker build -f build/docker/Dockerfile-source-git -t dracon/source/git:latest .
+
+images: image_tools image_producers image_enricher image_consumers image_sources
 
 
 test_producers:

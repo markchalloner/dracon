@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -57,12 +59,15 @@ func WriteDraconOut(
 	scanStartTime time.Time,
 	issues []*v1.Issue,
 ) error {
+	source := getSource()
 	cleanIssues := []*v1.Issue{}
 	for _, iss := range issues {
 		iss.Description = strings.Replace(iss.Description, sourceDir, ".", -1)
 		iss.Title = strings.Replace(iss.Title, sourceDir, ".", -1)
 		iss.Target = strings.Replace(iss.Target, sourceDir, ".", -1)
+		iss.Source = source
 		cleanIssues = append(cleanIssues, iss)
+		log.Printf("found issue: %+v\n", iss)
 	}
 	protoTime, err := ptypes.TimestampProto(scanStartTime)
 	if err != nil {
@@ -88,4 +93,18 @@ func WriteDraconOut(
 
 	log.Printf("parsed %d issues from %s to %s", len(issues), inResults, outFile)
 	return nil
+}
+
+func getSource() string {
+	sourceMetaPath := filepath.Join(sourceDir, ".source.dracon")
+	_, err := os.Stat(sourceMetaPath)
+	if os.IsNotExist(err) {
+		return "unknown"
+	}
+
+	dat, err := ioutil.ReadFile(sourceMetaPath)
+	if err != nil {
+		log.Println(err)
+	}
+	return strings.TrimSpace(string(dat))
 }

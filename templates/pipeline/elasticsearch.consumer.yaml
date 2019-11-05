@@ -19,7 +19,3 @@ spec:
       "-in", "{{.Consumer.SourcePath}}",
       "-es-index", "dracon"
     ]
-  - name: test
-    image: busybox:latest
-    command: ["echo"]
-    args: ["{{.Consumer.ParamRunID}}"]

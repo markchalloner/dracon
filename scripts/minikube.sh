@@ -1,17 +1,20 @@
 #!/bin/sh -e
 
+# Tekton Pipelines
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+
 # ES and Kibana
 minikube addons enable efk
 
 kubectl config use-context minikube
-kubectl create ns dracon
-kubectl config set-context --namespace=dracon
+kubectl create ns dracon || true
+kubectl config set-context minikube --namespace=dracon
 
 # Enricher DB
-kubectl apply -f templates/resources/enricher-db/k8s.yaml
+kubectl apply -f templates/persistence/enricher-db/k8s.yaml
 
 # Minio
-kubectl apply -f templates/resources/minio-storage/k8s.yaml
+kubectl apply -f templates/persistence/minio-storage/k8s.yaml
 
 # Dracon Pipeline
 go run cmd/dracon/main.go setup --path templates/pipeline

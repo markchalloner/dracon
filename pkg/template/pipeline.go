@@ -4,6 +4,7 @@ package template
 import (
 	"fmt"
 	"strings"
+	"time"
 )
 
 var (
@@ -19,10 +20,16 @@ type pipeline struct {
 
 var params = []pipelineParam{
 	{
-		"draconRunId",
-		"Dracon: Unique Run ID",
+		"DRACON_SCAN_ID",
+		"Dracon: Unique Scan ID",
 		"string",
 		RuntimePrefix,
+	},
+	{
+		"DRACON_SCAN_TIME",
+		"Dracon: Scan start time",
+		"string",
+		time.Now().UTC().Format(time.RFC3339),
 	},
 }
 

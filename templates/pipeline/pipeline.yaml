@@ -13,7 +13,7 @@ spec:
   tasks:
   # stage 1 - archive source
   - name: fetch-source
-    taskRef: {name: dracon-source}
+    taskRef: {name: git-source}
     resources:
       inputs: [{name: git-source, resource: git-source}]
       outputs: [{{.Pipeline.TaskSourceResource}}]

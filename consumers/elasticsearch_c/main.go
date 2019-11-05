@@ -82,6 +82,8 @@ func getRawIssue(scanStartTime time.Time, res *v1.LaunchToolResponse, iss *v1.Is
 		ScanStartTime: scanStartTime,
 		ScanID:        res.GetScanInfo().GetScanUuid(),
 		ToolName:      res.GetToolName(),
+		Source:        iss.GetSource(),
+		Title:         iss.GetTitle(),
 		Target:        iss.GetTarget(),
 		Type:          iss.GetType(),
 		Severity:      iss.GetSeverity(),
@@ -103,6 +105,8 @@ func getEnrichedIssue(scanStartTime time.Time, res *v1.EnrichedLaunchToolRespons
 		ScanStartTime: scanStartTime,
 		ScanID:        res.GetOriginalResults().GetScanInfo().GetScanUuid(),
 		ToolName:      res.GetOriginalResults().GetToolName(),
+		Source:        iss.GetRawIssue().GetSource(),
+		Title:         iss.GetRawIssue().GetTitle(),
 		Target:        iss.GetRawIssue().GetTarget(),
 		Type:          iss.GetRawIssue().GetType(),
 		Severity:      iss.GetRawIssue().GetSeverity(),
@@ -122,6 +126,7 @@ type esDocument struct {
 	ScanStartTime time.Time     `json:"scan_start_time"`
 	ScanID        string        `json:"scan_id"`
 	ToolName      string        `json:"tool_name"`
+	Source        string        `json:"source"`
 	Target        string        `json:"target"`
 	Type          string        `json:"type"`
 	Title         string        `json:"title"`
