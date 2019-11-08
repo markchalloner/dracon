@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	v1 "api/proto/dracon"
 )
 
 const exampleOutput = `

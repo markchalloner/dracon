@@ -5,10 +5,10 @@ go_library(
     ],
     visibility = ["//consumers/..."],
     deps = [
-        "//pkg/genproto/v1",
         "//pkg/putil",
+        "//api/proto:dracon",
         "//third_party/go:gogo_protobuf",
-        "//third_party/go:golang_protobuf",
+        "//third_party/go:protobuf",
     ],
 )
 

@@ -8,14 +8,14 @@ go_binary(
     static = True,
     deps = [
         "//consumers",
-        "//pkg/genproto/v1",
+        "//api/proto:dracon",
         "//third_party/go:elastic_go-elasticsearch_v6",
-        "//third_party/go:golang_protobuf",
+        "//third_party/go:protobuf",
     ],
 )
 
 docker_image(
-    name = "dracon-consumer-elasticsearch",
+    name = "image",
     srcs = [
         ":elasticsearch_c",
     ],

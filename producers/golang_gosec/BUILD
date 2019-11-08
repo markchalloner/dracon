@@ -6,7 +6,7 @@ go_binary(
         "main.go",
     ],
     deps = [
-        "//pkg/genproto/v1",
+        "//api/proto:dracon",
         "//producers",
     ],
 )
@@ -18,14 +18,14 @@ go_test(
         "main_test.go",
     ],
     deps = [
-        "//pkg/genproto/v1",
+        "//api/proto:dracon",
         "//producers",
         "//third_party/go:stretchr_testify",
     ],
 )
 
 docker_image(
-    name = "dracon-producer-gosec",
+    name = "image",
     srcs = [
         ":golang_gosec",
     ],

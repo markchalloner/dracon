@@ -9,7 +9,7 @@ go_binary(
     deps = [
         "//pkg/enrichment",
         "//pkg/enrichment/db",
-        "//pkg/genproto/v1",
+        "//api/proto:dracon",
         "//pkg/putil",
         "//third_party/go:spf13_cobra",
         "//third_party/go:spf13_viper",
@@ -17,8 +17,10 @@ go_binary(
 )
 
 docker_image(
-    name = "dracon-enricher",
-    srcs = [":enricher"],
+    name = "image",
+    srcs = [
+        ":enricher",
+    ],
     base_image = "//build/docker:dracon-base-go",
-    image = "dracon-enricher",
+    image = "dracon/enricher",
 )

@@ -14,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class TestJSONConsumer(unittest.TestCase):
-    
-    def setUp(self):    
+
+    def setUp(self):
         self.config = test_utils.ConsumerMockConfig()
         scan_start_time = Timestamp()
         scan_start_time.FromJsonString("1991-01-01T00:00:00Z")

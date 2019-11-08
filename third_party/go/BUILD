@@ -38,7 +38,7 @@ go_get(
 )
 
 go_get(
-    name = "golang_protobuf",
+    name = "protobuf",
     get = "github.com/golang/protobuf",
     install = [
         "proto",

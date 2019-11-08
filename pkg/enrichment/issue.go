@@ -11,7 +11,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/thought-machine/dracon/pkg/enrichment/db"
-	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	v1 "api/proto/dracon"
 )
 
 // GetHash returns the hash of an issue

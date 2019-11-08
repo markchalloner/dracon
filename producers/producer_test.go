@@ -7,14 +7,13 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/stretchr/testify/assert"
-	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	v1 "api/proto/dracon"
 )
 
 func TestWriteDraconOut(t *testing.T) {
 	tmpFile, err := ioutil.TempFile("", "dracon-test")
 	assert.Nil(t, err)
 	defer os.Remove(tmpFile.Name())
-	outFile = tmpFile.Name()
 	err = WriteDraconOut(
 		"dracon-test",
 		[]*v1.Issue{

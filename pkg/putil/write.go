@@ -8,7 +8,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
-	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	v1 "api/proto/dracon"
 )
 
 // WriteEnrichedResults writes the given enriched results to the given output file

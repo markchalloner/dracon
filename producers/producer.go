@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	v1 "api/proto/dracon"
 	"github.com/thought-machine/dracon/pkg/putil"
 )
 

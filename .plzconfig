@@ -13,3 +13,12 @@ default-docker-repo = index.docker.io/thoughtmachine
 
 [go]
 importpath = github.com/thought-machine/dracon
+
+[python]
+moduledir = third_party.python
+
+[proto]
+language = go
+language = py
+protocgoplugin = //third_party/binary:protoc-gen-go
+protoctool = //third_party/proto:protoc

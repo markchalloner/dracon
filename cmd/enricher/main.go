@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/thought-machine/dracon/pkg/enrichment"
 	"github.com/thought-machine/dracon/pkg/enrichment/db"
-	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	v1 "api/proto/dracon"
 	"github.com/thought-machine/dracon/pkg/putil"
 )
 

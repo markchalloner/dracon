@@ -6,13 +6,13 @@ go_binary(
         "main.go",
     ],
     deps = [
-        "//pkg/genproto/v1",
+        "//api/proto:dracon",
         "//producers",
     ],
 )
 
 docker_image(
-    name = "dracon-producer-java_spotbugs",
+    name = "image",
     srcs = [
         ":java_spotbugs",
     ],

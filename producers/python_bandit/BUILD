@@ -6,7 +6,7 @@ go_binary(
         "main.go",
     ],
     deps = [
-        "//pkg/genproto/v1",
+        "//api/proto:dracon",
         "//producers",
     ],
 )
@@ -19,10 +19,11 @@ go_test(
 )
 
 docker_image(
-    name = "dracon-producer-bandit",
+    name = "image_go",
     srcs = [
         ":python_bandit",
     ],
     base_image = "//build/docker:dracon-base-go",
     image = "dracon-producer-bandit",
+    dockerfile = "Dockerfile-go",
 )

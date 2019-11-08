@@ -1,6 +1,6 @@
 import sys
 import json
-from gen import engine_pb2
+from api.proto import engine_pb2
 from consumers.consumer import Consumer
 import logging
 from utils.file_utils import load_files

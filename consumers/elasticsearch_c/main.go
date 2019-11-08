@@ -14,7 +14,7 @@ import (
 	// elasticsearchv7 "github.com/elastic/go-elasticsearch/v7"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/thought-machine/dracon/consumers"
-	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	v1 "api/proto/dracon"
 )
 
 var (
