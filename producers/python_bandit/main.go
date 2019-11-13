@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"time"
 
 	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
 	"github.com/thought-machine/dracon/producers"
@@ -26,7 +25,6 @@ func main() {
 
 	if err := producers.WriteDraconOut(
 		"bandit",
-		time.Now(),
 		issues,
 	); err != nil {
 		log.Fatal(err)
@@ -36,8 +34,8 @@ func main() {
 func parseResult(r *BanditResult) *v1.Issue {
 	return &v1.Issue{
 		Target:      fmt.Sprintf("%s:%v", r.Filename, r.LineRange),
-		Type:        r.TestID,
-		Title:       r.TestID,
+		Type:        r.TestName,
+		Title:       r.TestName,
 		Severity:    v1.Severity(v1.Severity_value[fmt.Sprintf("SEVERITY_%s", r.IssueSeverity)]),
 		Cvss:        0.0,
 		Confidence:  v1.Confidence(v1.Confidence_value[fmt.Sprintf("CONFIDENCE_%s", r.IssueConfidence)]),

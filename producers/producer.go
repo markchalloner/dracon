@@ -9,11 +9,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
-	"github.com/google/uuid"
 	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
 )
 
@@ -56,7 +53,6 @@ func ParseInFileJSON(structure interface{}) error {
 // WriteDraconOut provides a generic method to write the resulting protobuf to the output file
 func WriteDraconOut(
 	toolName string,
-	scanStartTime time.Time,
 	issues []*v1.Issue,
 ) error {
 	source := getSource()
@@ -69,15 +65,7 @@ func WriteDraconOut(
 		cleanIssues = append(cleanIssues, iss)
 		log.Printf("found issue: %+v\n", iss)
 	}
-	protoTime, err := ptypes.TimestampProto(scanStartTime)
-	if err != nil {
-		return err
-	}
 	out := v1.LaunchToolResponse{
-		ScanInfo: &v1.ScanInfo{
-			ScanUuid:      uuid.New().String(),
-			ScanStartTime: protoTime,
-		},
 		ToolName: toolName,
 		Issues:   issues,
 	}
