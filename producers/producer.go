@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
 	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	"github.com/thought-machine/dracon/pkg/putil"
 )
 
 var (
@@ -65,22 +65,8 @@ func WriteDraconOut(
 		cleanIssues = append(cleanIssues, iss)
 		log.Printf("found issue: %+v\n", iss)
 	}
-	out := v1.LaunchToolResponse{
-		ToolName: toolName,
-		Issues:   issues,
-	}
 
-	outBytes, err := proto.Marshal(&out)
-	if err != nil {
-		return err
-	}
-
-	if err := ioutil.WriteFile(outFile, outBytes, 0644); err != nil {
-		return err
-	}
-
-	log.Printf("parsed %d issues from %s to %s", len(issues), inResults, outFile)
-	return nil
+	return putil.WriteResults(toolName, cleanIssues, outFile)
 }
 
 func getSource() string {

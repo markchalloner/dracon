@@ -17,13 +17,10 @@ spec:
     image: dracon/enrichment:latest
     imagePullPolicy: Never
     env:
-    - name: DRACON_READ_LOCATION
+    - name: ENRICHER_READ_PATH
       value: /workspace
-    - name: DRACON_WRITE_LOCATION
+    - name: ENRICHER_WRITE_PATH
       value: {{.Enrichment.OutPath}}
-    - name: DRACON_ENRICHMENT_DB_URI
-      value: "postgresql://dracon:dracon@dracon-enrichment-db"
-    command: ["sh"]
-    args: ["-c",
-      "python3 -u /home/app/dracon/enrichment_service/enrich_service.py --setup"
-    ]
+    - name: ENRICHER_DB_CONNECTION
+      value: "postgresql://dracon:dracon@dracon-enrichment-db?sslmode=disable"
+    command: ["/enricher"]

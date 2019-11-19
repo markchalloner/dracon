@@ -40,7 +40,11 @@ message EnrichedIssue {
     // The first time this issue was seen by the enrichment service
     google.protobuf.Timestamp first_seen = 2;
     // The number of times this issue was seen
-    int32 count = 3;
+    uint64 count = 3;
     // Whether this issue has been previously marked as a false positive
     bool false_positive = 4;
+    // The last time this issue was updated
+    google.protobuf.Timestamp updated_at = 5;
+    // hash
+    string hash = 6;
 }

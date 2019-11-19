@@ -3,16 +3,12 @@ package consumers
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
 	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	"github.com/thought-machine/dracon/pkg/putil"
 )
 
 var (
@@ -37,59 +33,34 @@ func ParseFlags() error {
 
 // LoadToolResponse loads raw results from producers
 func LoadToolResponse() ([]*v1.LaunchToolResponse, error) {
-	responses := []*v1.LaunchToolResponse{}
-	if err := filepath.Walk(inResults, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() && (strings.HasSuffix(f.Name(), ".pb")) {
-			pbBytes, err := ioutil.ReadFile(path)
-			if err != nil {
-				return err
-			}
-			scanInfo, err := getScanInfo()
-			if err != nil {
-				return err
-			}
-			res := v1.LaunchToolResponse{
-				ScanInfo: scanInfo,
-			}
-			if err := proto.Unmarshal(pbBytes, &res); err != nil {
-				log.Printf("skipping %s as unable to unmarshal", path)
-			} else {
-				responses = append(responses, &res)
-			}
-		}
-		return nil
-	}); err != nil {
-		return responses, err
+	res, err := putil.LoadToolResponse(inResults)
+	if err != nil {
+		return nil, err
 	}
-	return responses, nil
+	scanInfo, err := getScanInfo()
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range res {
+		r.ScanInfo = scanInfo
+	}
+	return res, nil
 }
 
 // LoadEnrichedToolResponse loads enriched results from the enricher
 func LoadEnrichedToolResponse() ([]*v1.EnrichedLaunchToolResponse, error) {
-	responses := []*v1.EnrichedLaunchToolResponse{}
-	if err := filepath.Walk(inResults, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() && (strings.HasSuffix(f.Name(), ".pb")) {
-			pbBytes, err := ioutil.ReadFile(path)
-			if err != nil {
-				return err
-			}
-			res := v1.EnrichedLaunchToolResponse{}
-			if err := proto.Unmarshal(pbBytes, &res); err != nil {
-				log.Printf("skipping %s as unable to unmarshal", path)
-			} else {
-				scanInfo, err := getScanInfo()
-				if err != nil {
-					return err
-				}
-				res.OriginalResults.ScanInfo = scanInfo
-				responses = append(responses, &res)
-			}
-		}
-		return nil
-	}); err != nil {
-		return responses, err
+	res, err := putil.LoadEnrichedToolResponse(inResults)
+	if err != nil {
+		return nil, err
 	}
-	return responses, nil
+	scanInfo, err := getScanInfo()
+	if err != nil {
+		return nil, err
+	}
+	for _, r := range res {
+		r.OriginalResults.ScanInfo = scanInfo
+	}
+	return res, nil
 }
 
 func getScanInfo() (*v1.ScanInfo, error) {
