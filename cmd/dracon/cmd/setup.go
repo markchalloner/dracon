@@ -25,8 +25,9 @@ import (
 	"github.com/thought-machine/dracon/pkg/template"
 )
 
-var setupOpts struct {
-	Path string
+var pipelineOpts struct {
+	PipelinePath     string
+	ExtraPatchesPath string
 }
 
 // setupCmd represents the setup command
@@ -35,20 +36,44 @@ var setupCmd = &cobra.Command{
 	Short: "Setup a new Dracon Pipeline",
 	Long:  `Use setup to help with setting up a new Dracon pipeline.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		tmpl := template.NewTemplater()
-		err := tmpl.LoadAll(setupOpts.Path)
+		// load pipeline files
+		files, err := template.LoadPipelineYAMLFiles(pipelineOpts.PipelinePath)
 		if err != nil {
 			return err
 		}
-		c, err := tmpl.String()
+		// prepare template vars from target files and patch files
+		if err := template.PrepareVars(files); err != nil {
+			return err
+		}
+		// apply template to target files
+		files, err = template.ExecuteFiles(files)
 		if err != nil {
 			return err
 		}
-		err = kubernetes.Apply(c)
+
+		// load all patch files
+		patches, err := template.LoadPatchYAMLFiles(pipelineOpts.ExtraPatchesPath)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to apply templates: %s\n", err)
-			os.Exit(2)
+			return err
 		}
+
+		resDocs, err := template.PatchFileYAMLs(files, patches)
+		if err != nil {
+			return err
+		}
+
+		for k, docs := range resDocs {
+			if k != "PipelineRun" && k != "PipelineResource" {
+				for _, doc := range docs {
+					err = kubernetes.Apply(string(doc))
+					if err != nil {
+						fmt.Fprintf(os.Stderr, "Failed to apply templates: %s\n", err)
+						os.Exit(2)
+					}
+				}
+			}
+		}
+
 		return nil
 	},
 }
@@ -56,6 +81,7 @@ var setupCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(setupCmd)
 
-	setupCmd.Flags().StringVarP(&setupOpts.Path, "path", "p", "", "Path to load templates from")
-	setupCmd.MarkFlagRequired("path")
+	setupCmd.Flags().StringVar(&pipelineOpts.PipelinePath, "pipeline", "", "Path to load the pipeline from")
+	setupCmd.Flags().StringVar(&pipelineOpts.ExtraPatchesPath, "extra-patches", "", "Path to load extra patches from")
+	setupCmd.MarkFlagRequired("pipeline")
 }

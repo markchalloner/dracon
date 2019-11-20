@@ -1,17 +1,13 @@
 ---
-apiVersion: tekton.dev/v1alpha1
-kind: Task
+apiVersion: dracon/v1alpha1
+kind: Enricher
 metadata:
-  name: {{.Enrichment.Name}}
-  labels:
-    project: dracon
+  name: golang-project-enricher
+  labels: {}
 spec:
-  inputs: {resources: [
-    {{.Enrichment.InResources "bandit" "gosec"}}
-  ]}
-  outputs: {resources: [{name: {{.Enrichment.OutResource}}, type: storage}]}
+  inputs: {resources: []}
+  outputs: {resources: []}
   steps:
-  - {{.Enrichment.StepSetup}}
   # run enricher
   - name: run-enricher
     image: dracon/enrichment:latest
@@ -20,7 +16,7 @@ spec:
     - name: ENRICHER_READ_PATH
       value: /workspace
     - name: ENRICHER_WRITE_PATH
-      value: {{.Enrichment.OutPath}}
+      value: "{{.EnricherOutPath}}"
     - name: ENRICHER_DB_CONNECTION
       value: "postgresql://dracon:dracon@dracon-enrichment-db?sslmode=disable"
     command: ["/enricher"]

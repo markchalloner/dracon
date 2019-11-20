@@ -1,0 +1,21 @@
+---
+apiVersion: dracon/v1alpha1
+kind: Consumer
+metadata:
+  name: mixed-lang-project-elasticsearch-consumer
+  labels: {}
+spec:
+  inputs: {resources: [], params: []}
+  steps:
+  # run elasticsearch consumer
+  - name: run-elasticsearch-consumer
+    image: dracon/consumer/elasticsearch:latest
+    imagePullPolicy: Never
+    env: [
+      {name: ELASTICSEARCH_URL, value: http://elasticsearch-logging.kube-system:9200}
+    ]
+    command: ["/consume"]
+    args: [
+      "-in", "{{.ConsumerSourcePath}}",
+      "-es-index", "dracon"
+    ]

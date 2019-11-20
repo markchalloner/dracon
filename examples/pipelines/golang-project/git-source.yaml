@@ -2,9 +2,8 @@
 apiVersion: tekton.dev/v1alpha1
 kind: Task
 metadata:
-  name: git-source
-  labels:
-    project: dracon
+  name: golang-project-git-source
+  labels: {}
 spec:
   inputs: {resources: [{name: git-source, type: git}]}
   outputs: {resources: [{name: source, type: storage}]}

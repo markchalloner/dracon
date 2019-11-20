@@ -20,35 +20,59 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-
 	"github.com/thought-machine/dracon/pkg/kubernetes"
 	"github.com/thought-machine/dracon/pkg/template"
 )
 
-var runOpts struct {
-	Path string
-}
-
-// runCmd represents the setup command
+// runCmd represents the run command
 var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "Run Dracon Pipeline",
 	Long:  `Use run to execute a Dracon pipeline-run.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		tmpl := template.NewTemplater()
-		err := tmpl.Load(runOpts.Path)
+		// load pipeline files
+		files, err := template.LoadPipelineYAMLFiles(pipelineOpts.PipelinePath)
 		if err != nil {
 			return err
 		}
-		c, err := tmpl.String()
+		// prepare template vars from target files and patch files
+		if err := template.PrepareVars(files); err != nil {
+			return err
+		}
+		// apply template to target files
+		files, err = template.ExecuteFiles(files)
 		if err != nil {
 			return err
 		}
-		err = kubernetes.Apply(c)
+
+		// load all patch files
+		patches, err := template.LoadPatchYAMLFiles(pipelineOpts.ExtraPatchesPath)
+
+		// append PipelineResources
+		pipelineResourceDocs, err := template.GeneratePipelineResourceDocs()
+		files["draconPipelineResources"] = pipelineResourceDocs
+
+		resDocs, err := template.PatchFileYAMLs(files, patches)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to apply templates: %s\n", err)
-			os.Exit(2)
+			return err
 		}
+
+		for _, doc := range resDocs["PipelineResource"] {
+			err = kubernetes.Apply(string(doc))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to apply templates: %s\n", err)
+				os.Exit(2)
+			}
+		}
+
+		for _, doc := range resDocs["PipelineRun"] {
+			err = kubernetes.Apply(string(doc))
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Failed to apply templates: %s\n", err)
+				os.Exit(2)
+			}
+		}
+
 		return nil
 	},
 }
@@ -56,6 +80,7 @@ var runCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(runCmd)
 
-	runCmd.Flags().StringVarP(&runOpts.Path, "path", "p", "", "Path to load template from")
-	runCmd.MarkFlagRequired("path")
+	runCmd.Flags().StringVar(&pipelineOpts.PipelinePath, "pipeline", "", "Path to load the pipeline from")
+	runCmd.Flags().StringVar(&pipelineOpts.ExtraPatchesPath, "extra-patches", "", "Path to load extra patches from")
+	runCmd.MarkFlagRequired("pipeline")
 }

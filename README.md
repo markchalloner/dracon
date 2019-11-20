@@ -6,8 +6,7 @@ process the results in a flexible way.
 
 # Getting Started
 
-First get set up with the [install guide](docs/install.md) then run through the
-[tutorial](docs/tutorial.md).
+We have a tutorial for [Getting started in Minikube](docs/getting-started/minikube.md).
 
 # Support
 

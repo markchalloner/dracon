@@ -3,7 +3,7 @@ FROM golang:alpine AS builder
 COPY . /app
 WORKDIR /app
 ENV CGO_ENABLED=0
-RUN go build -o /dist/enricher enrichment_service/main.go
+RUN go build -o /dist/enricher cmd/enricher/main.go
 
 FROM scratch
 

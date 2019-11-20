@@ -3,8 +3,9 @@ package kubernetes
 import (
 	"fmt"
 	"io"
-	"log"
 	"os/exec"
+
+	"github.com/pkg/errors"
 )
 
 // Apply config using kubectl
@@ -12,7 +13,7 @@ func Apply(config string) error {
 	cmd := exec.Command("kubectl", "apply", "-f", "-")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not create stdin pipe")
 	}
 	go func() {
 		defer stdin.Close()
@@ -21,11 +22,11 @@ func Apply(config string) error {
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return err
+		return errors.Wrap(err, config)
 	}
-	log.Printf("out: %s", output)
 	if !cmd.ProcessState.Success() {
-		return fmt.Errorf("failed to apply: %s", output)
+		return errors.Wrap(err, string(output))
 	}
+	fmt.Print(string(output))
 	return nil
 }

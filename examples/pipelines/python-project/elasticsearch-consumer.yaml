@@ -1,23 +1,21 @@
 ---
-apiVersion: tekton.dev/v1alpha1
-kind: Task
+apiVersion: dracon/v1alpha1
+kind: Consumer
 metadata:
-  name: {{.Consumer.Name "elasticsearch"}}
-  labels:
-    project: dracon
+  name: python-project-elasticsearch-consumer
+  labels: {}
 spec:
-  inputs: {resources: [{{.Consumer.SpecInputResource}}], params: [{{.Consumer.SpecInputParams}}]}
+  inputs: {resources: [], params: []}
   steps:
   # run elasticsearch consumer
   - name: run-elasticsearch-consumer
     image: dracon/consumer/elasticsearch:latest
     imagePullPolicy: Never
     env: [
-      {{.Consumer.EnvVars}},
       {name: ELASTICSEARCH_URL, value: http://elasticsearch-logging.kube-system:9200}
     ]
     command: ["/consume"]
     args: [
-      "-in", "{{.Consumer.SourcePath}}",
+      "-in", "{{.ConsumerSourcePath}}",
       "-es-index", "dracon"
     ]

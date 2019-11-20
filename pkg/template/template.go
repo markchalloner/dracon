@@ -17,62 +17,100 @@ package template
 
 import (
 	"bytes"
-	"path/filepath"
-	tt "text/template"
+	"fmt"
+	"html/template"
 	"time"
 
 	"github.com/speps/go-hashids"
 )
 
-// Templater represents Dracon CLI's templating engine
-type Templater struct {
-	text             *tt.Template
-	Producer         producer
-	Consumer         consumer
-	Pipeline         pipeline
-	PipelineResource pipelineResource
-	PipelineRun      pipelineRun
-	Enrichment       enrichment
-	ID               string
-}
+// TemplateVars represents the vars that are available in all templates
+var TemplateVars = newTemplateVars()
 
-// NewTemplater returns a new templater
-func NewTemplater() *Templater {
-
-	return &Templater{
-		Producer:         newProducer(),
-		Consumer:         newConsumer(),
-		Pipeline:         newPipeline(),
-		PipelineResource: newPipelineResource(),
-		PipelineRun:      newPipelineRun(),
-		Enrichment:       newEnrichment(),
-	}
-}
-
-// Load loads a single yaml to template
-func (t *Templater) Load(path string) error {
-	text, err := tt.ParseFiles(path)
-	t.text = text
-	return err
-}
-
-// LoadAll loads all of the yamls in a directory to template
-func (t *Templater) LoadAll(path string) error {
-	pattern := filepath.Join(path, "*.yaml")
-	var err error
-	t.text, err = tt.ParseGlob(pattern)
-	return err
-}
-
-// String returns a string of all the executed templates
-func (t *Templater) String() (string, error) {
-	buf := &bytes.Buffer{}
-	for _, tmpl := range t.text.Templates() {
-		if err := tmpl.Execute(buf, t); err != nil {
-			return "", err
+// PrepareVars adds contextual vars to the templater
+func PrepareVars(files PipelineYAMLDocs) error {
+	for _, f := range files {
+		for _, t := range f {
+			patchKind, err := getKindFromDoc(t)
+			if err != nil {
+				return err
+			}
+			switch patchKind {
+			case "Pipeline":
+				err = preparePipelineVars(t)
+			}
+			if err != nil {
+				return err
+			}
 		}
 	}
-	return buf.String(), nil
+	return nil
+}
+
+// ExecuteFiles executes the templates
+func ExecuteFiles(files PipelineYAMLDocs) (PipelineYAMLDocs, error) {
+	templatedFiles := map[string][][]byte{}
+	for path, file := range files {
+		templatedFiles[path] = [][]byte{}
+		for _, target := range file {
+			templatedTarget, err := execTemplate(target)
+			if err != nil {
+				return nil, err
+			}
+			templatedFiles[path] = append(templatedFiles[path], templatedTarget)
+		}
+	}
+	return templatedFiles, nil
+}
+
+func execTemplate(targetJSON []byte) ([]byte, error) {
+	t := template.Must(template.New("target").Parse(string(targetJSON)))
+	buf := &bytes.Buffer{}
+	if err := t.Execute(buf, TemplateVars); err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
+type templateVars struct {
+	RunID string
+
+	ProducerSourcePath  string
+	ProducerToolOutPath string
+	ProducerOutPath     string
+	EnricherOutPath     string
+	ConsumerSourcePath  string
+
+	PipelineParams        []PipelineParam
+	PipelineTaskEnrichers []PipelineTask
+	PipelineTaskProducers []PipelineTask
+	PipelineTaskConsumers []PipelineTask
+}
+
+func newTemplateVars() *templateVars {
+	id := getID()
+	return &templateVars{
+		RunID:               id,
+		ProducerSourcePath:  `/dracon/source`,
+		ProducerToolOutPath: `/dracon/results`,
+		ProducerOutPath:     `/workspace/output/producer/results.pb`,
+		EnricherOutPath:     `/workspace/output/enricher`,
+		ConsumerSourcePath:  `/workspace/`,
+		PipelineParams: []PipelineParam{
+			PipelineParam{
+				"DRACON_SCAN_ID",
+				"Dracon: Unique Scan ID",
+				"string",
+				fmt.Sprintf("dracon-%s", id),
+			},
+			PipelineParam{
+				"DRACON_SCAN_TIME",
+				"Dracon: Scan start time",
+				"string",
+				time.Now().UTC().Format(time.RFC3339),
+			},
+		},
+	}
 }
 
 func getID() string {

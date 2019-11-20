@@ -2,99 +2,70 @@ package template
 
 // non-runtime
 import (
-	"fmt"
+	"encoding/json"
 	"strings"
-	"time"
 )
 
-var (
-	PipelineNamePrefix = "dracon"
-)
+// PipelineParam represents a Parameter in a Pipeline
+type PipelineParam struct {
+	Name        string
+	Description string
+	Type        string
+
+	Value string
+}
+
+// PipelineTask represents a Task in a Pipeline
+type PipelineTask struct {
+	Index int
+	Name  string
+}
+
+func preparePipelineVars(doc []byte) error {
+	var err error
+	TemplateVars.PipelineTaskProducers, err = getPipelineTasksByType("producer", doc)
+	if err != nil {
+		return err
+	}
+	TemplateVars.PipelineTaskConsumers, err = getPipelineTasksByType("consumer", doc)
+	if err != nil {
+		return err
+	}
+	TemplateVars.PipelineTaskEnrichers, err = getPipelineTasksByType("enricher", doc)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func getPipelineTasksByType(taskType string, targetJSON []byte) ([]PipelineTask, error) {
+	var p pipeline
+	err := json.Unmarshal(targetJSON, &p)
+	if err != nil {
+		return nil, err
+	}
+
+	pipelineTasks := []PipelineTask{}
+	for i, t := range p.Spec.Tasks {
+		tTaskType := t.Name
+		taskName := t.Name
+		nameParts := strings.Split(t.Name, "-")
+		if len(nameParts) > 1 {
+			tTaskType = nameParts[len(nameParts)-1]
+			taskName = strings.Join(nameParts[0:len(nameParts)-1], "-")
+		}
+		if tTaskType == taskType {
+			pipelineTasks = append(pipelineTasks, PipelineTask{Index: i, Name: taskName})
+		}
+	}
+
+	return pipelineTasks, nil
+}
 
 type pipeline struct {
-	SourceResource          string
-	EnricherResource        string
-	TaskSourceResource      string
-	TaskEnricherOutResource string
-}
-
-var params = []pipelineParam{
-	{
-		"DRACON_SCAN_ID",
-		"Dracon: Unique Scan ID",
-		"string",
-		RuntimePrefix,
-	},
-	{
-		"DRACON_SCAN_TIME",
-		"Dracon: Scan start time",
-		"string",
-		time.Now().UTC().Format(time.RFC3339),
-	},
-}
-
-type pipelineParam struct {
-	name        string
-	description string
-	pType       string
-
-	value string
-}
-
-func newPipeline() pipeline {
-	return pipeline{
-		SourceResource:          fmt.Sprintf("{type: storage, name: %s}", SourceResource),
-		EnricherResource:        fmt.Sprintf("{type: storage, name: %s}", EnricherResource),
-		TaskSourceResource:      fmt.Sprintf("{name: %[1]s, resource: %[1]s}", SourceResource),
-		TaskEnricherOutResource: fmt.Sprintf("{name: %[1]s, resource: %[1]s}", EnricherResource),
-	}
-}
-
-func (pipeline) Name(n string) string {
-	return fmt.Sprintf("dracon-%s", n)
-}
-
-func (pipeline) ProducerResources(names ...string) string {
-	for i, s := range names {
-		names[i] = fmt.Sprintf("  - {type: storage, name: %s-%s}", ProducerResource, s)
-	}
-	names[0] = strings.TrimPrefix(names[0], "  - ")
-	return strings.Join(names, "\n")
-}
-
-func (pipeline) TaskProducerOutResource(name string) string {
-	return fmt.Sprintf("{name: %s, resource: %s-%s}", ProducerResource, ProducerResource, name)
-}
-
-func (pipeline) TaskEnricherInputResources(names ...string) string {
-	for i, s := range names {
-		names[i] = fmt.Sprintf("{name: %[1]s-%[2]s, resource: %[1]s-%[2]s}", ProducerResource, s)
-	}
-	return strings.Join(names, ",")
-}
-
-func (pipeline) Params() string {
-	res := []string{}
-	for _, p := range params {
-		res = append(res,
-			fmt.Sprintf(
-				`{name: "%s", description: "%s", type: "%s"}`,
-				p.name, p.description, p.pType,
-			),
-		)
-	}
-	return strings.Join(res, ",")
-}
-
-func (pipeline) ConsumerParams() string {
-	res := []string{}
-	for _, p := range params {
-		res = append(res,
-			fmt.Sprintf(
-				`{name: "%s", value: "%s"}`,
-				p.name, fmt.Sprintf("$(params.%s)", p.name),
-			),
-		)
-	}
-	return strings.Join(res, ",")
+	Spec struct {
+		Tasks []struct {
+			Name string `json:"name"`
+		} `json:"tasks"`
+	} `json:"spec"`
 }

@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
 	"github.com/thought-machine/dracon/producers"
@@ -26,7 +25,6 @@ func main() {
 
 	if err := producers.WriteDraconOut(
 		"spotbugs",
-		time.Now(),
 		issues,
 	); err != nil {
 		log.Fatal(err)
