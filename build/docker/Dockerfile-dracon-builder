@@ -1,0 +1,18 @@
+# Can be used to build Dracon if you don't want to set up a build environment
+FROM golang:buster AS builder
+
+WORKDIR /app
+
+RUN apt-get update && \
+  apt-get upgrade -y && \
+  apt-get install -y bash curl xz-utils && \
+  rm -rf /var/lib/apt/lists/*
+
+
+# Install please build system
+RUN curl https://get.please.build | bash
+ENV PATH="/root/.please:${PATH}"
+RUN please --version
+RUN echo "[build]\npath = /usr/local/go/bin:/usr/local/bin:/usr/bin:/bin" > ~/.config/please/plzconfig
+
+# TODO support python

@@ -8,9 +8,10 @@ import (
 	"log"
 	"time"
 
-	elasticsearchv5 "github.com/elastic/go-elasticsearch/v5"
-	elasticsearchv6 "github.com/elastic/go-elasticsearch/v6"
-	elasticsearchv7 "github.com/elastic/go-elasticsearch/v7"
+	//  TODO(hjenkins): Support multiple versions of ES
+	// elasticsearchv5 "github.com/elastic/go-elasticsearch/v5"
+	elasticsearchv6 "github.com/elastic/go-elasticsearch"
+	// elasticsearchv7 "github.com/elastic/go-elasticsearch/v7"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/thought-machine/dracon/consumers"
 	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
@@ -141,7 +142,7 @@ type esDocument struct {
 var esClient interface{}
 
 func getESClient() error {
-	es, err := elasticsearchv7.NewDefaultClient()
+	es, err := elasticsearchv6.NewDefaultClient()
 	if err != nil {
 		return err
 	}
@@ -161,12 +162,12 @@ func getESClient() error {
 		return err
 	}
 	switch info.Version.Number[0] {
-	case '5':
-		esClient, err = elasticsearchv5.NewDefaultClient()
+	// case '5':
+	// 	esClient, err = elasticsearchv5.NewDefaultClient()
 	case '6':
 		esClient, err = elasticsearchv6.NewDefaultClient()
-	case '7':
-		esClient, err = elasticsearchv7.NewDefaultClient()
+	// case '7':
+	// 	esClient, err = elasticsearchv7.NewDefaultClient()
 	default:
 		err = fmt.Errorf("unsupported version %s", info.Version.Number)
 	}
@@ -177,12 +178,12 @@ func esPush(b []byte) error {
 	var err error
 	var res interface{}
 	switch x := esClient.(type) {
-	case *elasticsearchv5.Client:
-		res, err = x.Index(esIndex, bytes.NewBuffer(b), x.Index.WithDocumentType("doc"))
+	// case *elasticsearchv5.Client:
+	// 	res, err = x.Index(esIndex, bytes.NewBuffer(b), x.Index.WithDocumentType("doc"))
 	case *elasticsearchv6.Client:
 		res, err = x.Index(esIndex, bytes.NewBuffer(b), x.Index.WithDocumentType("doc"))
-	case *elasticsearchv7.Client:
-		res, err = x.Index(esIndex, bytes.NewBuffer(b))
+	// case *elasticsearchv7.Client:
+	// 	res, err = x.Index(esIndex, bytes.NewBuffer(b))
 	default:
 		err = fmt.Errorf("unsupported client %T", esClient)
 	}
