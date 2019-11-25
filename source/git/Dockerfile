@@ -2,4 +2,4 @@ FROM alpine:latest
 
 RUN apk add --update --no-cache git openssh-client
 
-COPY source/git.sh /git.sh
+COPY git.sh /git.sh

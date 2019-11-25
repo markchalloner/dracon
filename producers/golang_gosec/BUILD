@@ -30,6 +30,5 @@ docker_image(
         ":golang_gosec",
     ],
     base_image = "//build/docker:dracon-base-go",
-    dockerfile = "Dockerfile-producer-gosec",
-    image = "dracon/producer-gosec",
+    image = "dracon-producer-gosec",
 )

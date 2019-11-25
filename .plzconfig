@@ -9,8 +9,7 @@
 ; version = 14.1.7
 
 [buildconfig]
-default-docker-repo = hub.docker.com
+default-docker-repo = index.docker.io/thoughtmachine
 
 [go]
 importpath = github.com/thought-machine/dracon
-

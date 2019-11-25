@@ -16,7 +16,7 @@ image_producer_bandit:
 image_producer_gosec:
 	docker build -f build/docker/Dockerfile-producer-gosec -t dracon/producer/gosec:latest .
 image_producer_spotbugs:
-	docker build -f build/docker/Dockerfile-producer-spotbugs -t dracon/producer/spotbugs:latest .
+	docker build -f build/docker/Dockerfile-spotbugs -t dracon/producer/spotbugs:latest .
 
 image_tools: image_bandit image_spotbugs
 image_bandit:

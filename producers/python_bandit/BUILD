@@ -24,6 +24,5 @@ docker_image(
         ":python_bandit",
     ],
     base_image = "//build/docker:dracon-base-go",
-    dockerfile = "Dockerfile-producer-bandit",
-    image = "dracon/producer-bandit",
+    image = "dracon-producer-bandit",
 )

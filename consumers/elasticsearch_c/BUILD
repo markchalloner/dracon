@@ -5,6 +5,7 @@ go_binary(
     srcs = [
         "main.go",
     ],
+    static = True,
     deps = [
         "//consumers",
         "//pkg/genproto/v1",
@@ -19,6 +20,5 @@ docker_image(
         ":elasticsearch_c",
     ],
     base_image = "//build/docker:dracon-base-go",
-    dockerfile = "Dockerfile-consumer-elasticsearch",
-    image = "dracon/consumer-elasticsearch",
+    image = "dracon-consumer-elasticsearch",
 )

@@ -17,6 +17,5 @@ docker_image(
         ":java_spotbugs",
     ],
     base_image = "//build/docker:dracon-base-go",
-    dockerfile = "Dockerfile-producer-java_spotbugs",
-    image = "dracon/producer-java_spotbugs",
+    image = "dracon-producer-java_spotbugs",
 )
