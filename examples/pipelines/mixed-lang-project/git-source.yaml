@@ -9,6 +9,5 @@ spec:
   outputs: {resources: [{name: source, type: storage}]}
   steps:
   - name: git-source
-    image: dracon/source/git
-    imagePullPolicy: Never
+    image: thoughtmachine/dracon-source-git:latest
     command: ["/git.sh"]

@@ -3,6 +3,7 @@ package kubernetes
 import (
 	"fmt"
 	"io"
+	"log"
 	"os/exec"
 
 	"github.com/pkg/errors"
@@ -17,7 +18,10 @@ func Apply(config string) error {
 	}
 	go func() {
 		defer stdin.Close()
-		io.WriteString(stdin, config)
+		_, err := io.WriteString(stdin, config)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}()
 
 	output, err := cmd.CombinedOutput()

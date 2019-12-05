@@ -19,7 +19,7 @@ spec:
     volumeMounts: []
   # parse results
   - name: parse-gosec
-    image: dracon/producer/gosec
+    image: thoughtmachine/dracon-producer-gosec:latest
     imagePullPolicy: Never
     command: ["/parse"]
     args: [

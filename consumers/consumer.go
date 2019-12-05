@@ -1,3 +1,5 @@
+// Package consumers provides helper functions for working with Dracon compatible outputs as a Consumer.
+// Subdirectories in this package have more complete example usages of this package.
 package consumers
 
 import (

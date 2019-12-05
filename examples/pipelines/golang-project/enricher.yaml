@@ -10,8 +10,7 @@ spec:
   steps:
   # run enricher
   - name: run-enricher
-    image: dracon/enrichment:latest
-    imagePullPolicy: Never
+    image: thoughtmachine/dracon-enricher:latest
     env:
     - name: ENRICHER_READ_PATH
       value: /workspace

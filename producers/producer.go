@@ -1,3 +1,5 @@
+// Package producers provides helper functions for writing Dracon compatible producers that parse tool outputs.
+// Subdirectories in this package have more complete example usages of this package.
 package producers
 
 import (

@@ -11,7 +11,7 @@ spec:
   steps:
   # run spotbugs
   - name: run-spotbugs
-    image: dracon/spotbugs:latest
+    image: thoughtmachine/dracon-tool-spotbugs:latest
     command: ["sh"]
     args: ["-c",
       "spotbugs {{.ProducerSourcePath}} -output {{.ProducerToolOutPath}} -xml:withMessages"
@@ -19,7 +19,7 @@ spec:
     volumeMounts: []
   # parse results
   - name: parse-spotbugs
-    image: dracon/producer/spotbugs
+    image: thoughtmachine/dracon-producer-spotbugs:latest
     imagePullPolicy: Never
     command: ["/parse"]
     args: [

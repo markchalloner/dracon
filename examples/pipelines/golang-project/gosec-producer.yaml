@@ -19,8 +19,7 @@ spec:
     volumeMounts: []
   # parse results
   - name: parse-gosec
-    image: dracon/producer/gosec
-    imagePullPolicy: Never
+    image: thoughtmachine/dracon-producer-gosec:latest
     command: ["/parse"]
     args: [
       "-in={{.ProducerToolOutPath}}",

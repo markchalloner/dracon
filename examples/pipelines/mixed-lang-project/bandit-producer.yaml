@@ -11,8 +11,7 @@ spec:
   steps:
   # run bandit
   - name: run-bandit
-    image: dracon/bandit:latest
-    imagePullPolicy: Never
+    image: thoughtmachine/dracon-tool-bandit:latest
     command: ["sh"]
     args: ["-c",
       "bandit --recursive {{.ProducerSourcePath}} --format json --output {{.ProducerToolOutPath}} || true"
@@ -20,8 +19,7 @@ spec:
     volumeMounts: []
   # parse results
   - name: parse-bandit
-    image: dracon/producer/bandit:latest
-    imagePullPolicy: Never
+    image: thoughtmachine/dracon-producer-bandit:latest
     command: ["/parse"]
     args: [
       "-in={{.ProducerToolOutPath}}",

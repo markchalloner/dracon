@@ -18,14 +18,3 @@ CREATE TABLE IF NOT EXISTS issues (
   PRIMARY KEY ("hash")
 );
 CREATE INDEX idx_issues_source ON issues(source);
-
--- Changes table
-CREATE TABLE IF NOT EXISTS "changes" (
-  id uuid,
-  "tester" TEXT NOT NULL, -- what is this for?
-  "issue" VARCHAR(32) REFERENCES issues("hash"),
-  "timestamp" TIMESTAMP WITH TIME ZONE,
-  operation TEXT NOT NULL, -- what is this for?
-  value BOOLEAN NOT NULL, -- what is this for?
-  PRIMARY KEY (id)
-);

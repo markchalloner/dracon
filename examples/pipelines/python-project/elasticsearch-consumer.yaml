@@ -9,10 +9,10 @@ spec:
   steps:
   # run elasticsearch consumer
   - name: run-elasticsearch-consumer
-    image: dracon/consumer/elasticsearch:latest
+    image: thoughtmachine/dracon-consumer-elasticsearch:latest
     imagePullPolicy: Never
     env: [
-      {name: ELASTICSEARCH_URL, value: http://elasticsearch-logging.kube-system:9200}
+      {name: ELASTICSEARCH_URL, value: http://elasticsearch:9200}
     ]
     command: ["/consume"]
     args: [

@@ -28,6 +28,8 @@ git push origin --tags
 ```
 # TODO(vj): make this script push image tags MAJOR and MINOR too. e.g. pushing tag `:0.1.2` should also push tags `:0` and `:0.1`
 scripts/publish-images.sh <version>
+# if this should be considered the "latest" version, push as the latest tag too:
+scripts/publish-images.sh latest
 ```
 2. Build the Dracon binary and publish it to GitHub releases by running:
 ```

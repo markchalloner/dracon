@@ -48,7 +48,7 @@ spec:
   pipelineRef: {name: demo}
   params: []
   podTemplate: {}
-  serviceAccount: gitssh-github-tektoncd-pipeline # replace with desired git source service account (if needed)
+  serviceAccountName: gitssh-github-tektoncd-pipeline # replace with desired git source service account (if needed)
   resources:
   - {name: git-source, resourceRef: {name: "{{.RunID}}-gitssh-github-tektoncd-pipeline"}} # replace with desired git source
   timeout: 1h0m0s

@@ -11,7 +11,7 @@ spec:
   steps:
   # run bandit
   - name: run-bandit
-    image: dracon/bandit:latest
+    image: thoughtmachine/dracon-tool-bandit:latest
     imagePullPolicy: Never
     command: ["sh"]
     args: ["-c",
@@ -20,7 +20,7 @@ spec:
     volumeMounts: []
   # parse results
   - name: parse-bandit
-    image: dracon/producer/bandit:latest
+    image: thoughtmachine/dracon-producer-bandit:latest
     imagePullPolicy: Never
     command: ["/parse"]
     args: [

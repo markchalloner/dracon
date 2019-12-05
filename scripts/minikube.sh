@@ -15,3 +15,7 @@ kubectl apply -f resources/persistence/enricher-db/k8s.yaml
 
 # Minio
 kubectl apply -f resources/persistence/minio-storage/k8s.yaml
+
+# Elasticsearch + Kibana
+kubectl apply -f resources/persistence/elasticsearch-kibana/elasticsearch.yaml
+kubectl apply -f resources/persistence/elasticsearch-kibana/kibana.yaml
