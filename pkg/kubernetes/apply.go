@@ -1,7 +1,6 @@
 package kubernetes
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"os/exec"
@@ -31,6 +30,6 @@ func Apply(config string) error {
 	if !cmd.ProcessState.Success() {
 		return errors.Wrap(err, string(output))
 	}
-	fmt.Print(string(output))
+	log.Println(string(output))
 	return nil
 }

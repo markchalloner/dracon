@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -60,7 +60,7 @@ var runCmd = &cobra.Command{
 		for _, doc := range resDocs["PipelineResource"] {
 			err = kubernetes.Apply(string(doc))
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to apply templates: %s\n", err)
+				log.Fatalf("Failed to apply templates: %s\n", err)
 				os.Exit(2)
 			}
 		}
@@ -68,7 +68,7 @@ var runCmd = &cobra.Command{
 		for _, doc := range resDocs["PipelineRun"] {
 			err = kubernetes.Apply(string(doc))
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to apply templates: %s\n", err)
+				log.Fatalf("Failed to apply templates: %s\n", err)
 				os.Exit(2)
 			}
 		}
