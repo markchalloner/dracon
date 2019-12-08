@@ -8,7 +8,6 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/ghodss/yaml"
-	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -39,7 +38,7 @@ func PatchFileYAMLs(
 		for _, t := range f {
 			patchKind, err := getKindFromDoc(t)
 			if err != nil {
-				return nil, errors.Wrapf(err, "could not get kind from doc: %s", t)
+				return nil, fmt.Errorf("could not get kind from doc %s: %w", t, err)
 			}
 			if _, ok := resDocs[patchKind]; !ok {
 				resDocs[patchKind] = [][]byte{}
@@ -47,7 +46,7 @@ func PatchFileYAMLs(
 			buf := &bytes.Buffer{}
 			yamlBytes, err := yaml.JSONToYAML(t)
 			if err != nil {
-				return nil, errors.Wrapf(err, "could not translate json to yaml: %s", t)
+				return nil, fmt.Errorf("could not translate from JSON to YAML %s: %w", t, err)
 			}
 			if foundPatches, ok := patches[patchKind]; ok {
 				log.Printf("applying patch kind: %s", patchKind)
@@ -55,7 +54,11 @@ func PatchFileYAMLs(
 				for _, patch := range foundPatches {
 					newPatch := jsonpatch.Patch{}
 					for _, op := range patch {
-						newPatch = append(newPatch, patchArrayGlob(op, t)...)
+						globPatch, err := patchArrayGlob(op, t)
+						if err != nil {
+							return nil, err
+						}
+						newPatch = append(newPatch, globPatch...)
 					}
 					modifiedT, err = newPatch.Apply(modifiedT)
 					if err != nil {

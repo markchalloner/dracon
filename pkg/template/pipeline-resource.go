@@ -4,15 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 )
 
-func GeneratePipelineResourceDocs() ([][]byte, error) {
-	resDocs := [][]byte{}
+// GeneratePipelineResourceDocs returns the set of unique resource docs for a pipeline
+func GeneratePipelineResourceDocs() (ResourceDocs, error) {
+	resDocs := ResourceDocs{}
 	resources := []PipelineTask{}
 	resources = append(resources, TemplateVars.PipelineTaskProducers...)
 	resources = append(resources, TemplateVars.PipelineTaskEnrichers...)
-	// resources = append(resources, TemplateVars.PipelineTaskConsumers...)
 	resources = append(resources, PipelineTask{
 		Name:  "source",
 		Index: 0,
@@ -59,9 +58,7 @@ func GeneratePipelineResourceDocs() ([][]byte, error) {
 			return nil, err
 		}
 		buf.Write(yamlBytes)
-		// buf.WriteString(fmt.Sprintf("---\n%s\n", yamlBytes))
 		resDocs = append(resDocs, buf.Bytes())
-		log.Println(string(buf.Bytes()))
 	}
 
 	return resDocs, nil

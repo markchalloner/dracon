@@ -24,6 +24,12 @@ import (
 	"github.com/speps/go-hashids"
 )
 
+// ResourceDoc represents a K8s resource document
+type ResourceDoc []byte
+
+// ResourceDocs represents a set of K8s resource documents
+type ResourceDocs []ResourceDoc
+
 // TemplateVars represents the vars that are available in all templates
 var TemplateVars = newTemplateVars()
 
@@ -49,9 +55,9 @@ func PrepareVars(files PipelineYAMLDocs) error {
 
 // ExecuteFiles executes the templates
 func ExecuteFiles(files PipelineYAMLDocs) (PipelineYAMLDocs, error) {
-	templatedFiles := map[string][][]byte{}
+	templatedFiles := map[string]ResourceDocs{}
 	for path, file := range files {
-		templatedFiles[path] = [][]byte{}
+		templatedFiles[path] = ResourceDocs{}
 		for _, target := range file {
 			templatedTarget, err := execTemplate(target)
 			if err != nil {

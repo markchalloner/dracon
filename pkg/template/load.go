@@ -2,6 +2,8 @@ package template
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,23 +12,23 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch"
 	"github.com/ghodss/yaml"
-	"github.com/pkg/errors"
 	"github.com/rakyll/statik/fs"
 
 	// Statik bindata for Dracon patches
 	_ "github.com/thought-machine/dracon/pkg/template/patches"
 )
 
+// Errors returned from this package
 var (
 	ErrNonYAMLFileEncountered = errors.New("non-yaml file found in directory")
 )
 
 // PipelineYAMLDocs stores all of the yaml docs found in a file in the format map[path][]doc
-type PipelineYAMLDocs map[string][][]byte
+type PipelineYAMLDocs map[string]ResourceDocs
 
 // LoadPipelineYAMLFiles returns all of the PipelineYAMLDocs in a directory
 func LoadPipelineYAMLFiles(sourcePath string) (PipelineYAMLDocs, error) {
-	targets := map[string][][]byte{}
+	targets := PipelineYAMLDocs{}
 	err := filepath.Walk(sourcePath, func(path string, f os.FileInfo, err error) error {
 		if !f.IsDir() && (strings.HasSuffix(f.Name(), ".yml") || strings.HasSuffix(f.Name(), ".yaml")) {
 			docs, err := loadYAMLFile(path)
@@ -40,15 +42,19 @@ func LoadPipelineYAMLFiles(sourcePath string) (PipelineYAMLDocs, error) {
 	return targets, err
 }
 
-func loadYAMLFile(path string) ([][]byte, error) {
+func loadYAMLFile(path string) (ResourceDocs, error) {
 	targetYAML, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not read file at path %s", path)
+		return nil, fmt.Errorf("could not read file at path %s: %w", path, err)
 	}
-	resFileYamlDocs := [][]byte{}
-	yamlParts := bytes.Split(targetYAML, []byte(`---`))
-	yamlDocs := func(yamlParts [][]byte) [][]byte {
-		yamlDocs := [][]byte{}
+	resFileYamlDocs := ResourceDocs{}
+	yamlByteParts := bytes.Split(targetYAML, []byte(`---`))
+	yamlParts := ResourceDocs{}
+	for _, bytePart := range yamlByteParts {
+		yamlParts = append(yamlParts, ResourceDoc(bytePart))
+	}
+	yamlDocs := func(yamlParts ResourceDocs) ResourceDocs {
+		yamlDocs := ResourceDocs{}
 		for _, d := range yamlParts {
 			if strings.TrimSpace(string(d)) != "" {
 				yamlDocs = append(yamlDocs, d)
@@ -56,11 +62,11 @@ func loadYAMLFile(path string) ([][]byte, error) {
 		}
 		return yamlDocs
 	}(yamlParts)
-	log.Printf("found %d yaml docs in %s", len(yamlDocs), path)
+	log.Printf("found %d YAML docs in %s", len(yamlDocs), path)
 	for _, yDoc := range yamlDocs {
 		yDocParsed, err := yaml.YAMLToJSON(yDoc)
 		if err != nil {
-			return nil, errors.Wrapf(err, "could not read YAML doc in path %s", path)
+			return nil, fmt.Errorf("could not read YAML doc in path %s: %w", path, err)
 		}
 		resFileYamlDocs = append(resFileYamlDocs, yDocParsed)
 	}
@@ -74,7 +80,7 @@ type PatchKindYAMLDocs map[string][]jsonpatch.Patch
 func loadStatikPatches() (PatchKindYAMLDocs, error) {
 	statikFS, err := fs.New()
 	if err != nil {
-		return nil, errors.Wrap(err, "could not load statik filesystem")
+		return nil, fmt.Errorf("could not load statik filesystem: %w", err)
 	}
 	patches := PatchKindYAMLDocs{}
 	err = fs.Walk(statikFS, "/", func(path string, f os.FileInfo, err error) error {
@@ -82,13 +88,13 @@ func loadStatikPatches() (PatchKindYAMLDocs, error) {
 			patchKind := getPatchKindFromPath(path)
 			r, err := statikFS.Open(path)
 			if err != nil {
-				return errors.Wrap(err, "could not open statik file")
+				return fmt.Errorf("could not open statik file: %w", err)
 			}
 			defer r.Close()
 			contents, err := ioutil.ReadAll(r)
 			patch, err := loadPatchFromYAML(contents)
 			if err != nil {
-				return errors.Wrap(err, "could load patch from YAML")
+				return fmt.Errorf("could not load patch from YAML: %w", err)
 			}
 			if _, ok := patches[patchKind]; !ok {
 				patches[patchKind] = []jsonpatch.Patch{}
@@ -113,11 +119,11 @@ func LoadPatchYAMLFiles(sourcePath string) (PatchKindYAMLDocs, error) {
 				patchKind := getPatchKindFromPath(path)
 				patchYAML, err := ioutil.ReadFile(path)
 				if err != nil {
-					return errors.Wrap(err, "could not read file")
+					return fmt.Errorf("could not read file: %w", err)
 				}
 				patch, err := loadPatchFromYAML(patchYAML)
 				if err != nil {
-					return errors.Wrap(err, "could load patch from YAML")
+					return fmt.Errorf("could not load patch from YAML: %w", err)
 				}
 				if _, ok := patches[patchKind]; !ok {
 					patches[patchKind] = []jsonpatch.Patch{}
