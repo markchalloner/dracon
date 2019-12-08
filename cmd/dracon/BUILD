@@ -3,6 +3,7 @@ go_binary(
     srcs = [
         "main.go",
     ],
+    static = True,
     deps = [
         "//cmd/dracon/cmd",
         "//third_party/go:spf13_cobra",
