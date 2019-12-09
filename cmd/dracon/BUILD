@@ -3,6 +3,10 @@ go_binary(
     srcs = [
         "main.go",
     ],
+    definitions = {
+        "github.com/thought-machine/dracon/pkg/version.BuildVersion": "${SCM_REVISION}",
+    },
+    stamp = True,
     static = True,
     deps = [
         "//cmd/dracon/cmd",
