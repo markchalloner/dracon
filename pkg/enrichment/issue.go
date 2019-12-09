@@ -11,6 +11,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/thought-machine/dracon/pkg/enrichment/db"
+
 	v1 "api/proto/dracon"
 )
 

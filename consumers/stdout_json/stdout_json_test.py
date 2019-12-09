@@ -5,8 +5,8 @@ import shutil
 from google.protobuf.timestamp_pb2 import Timestamp
 from unittest import mock
 from consumers.stdout_json import stdout_json
-from gen import engine_pb2
-from gen import issue_pb2
+from api.proto import engine_pb2
+from api.proto import issue_pb2
 import logging
 from utils import test_utils
 

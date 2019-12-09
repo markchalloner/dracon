@@ -20,5 +20,7 @@ moduledir = third_party.python
 [proto]
 language = go
 language = py
-protocgoplugin = //third_party/binary:protoc-gen-go
+pythondep = //third_party/python:protobuf
 protoctool = //third_party/proto:protoc
+pythongrpcdep = //third_party/python3:grpc
+protocgoplugin = //third_party/binary:protoc-gen-go

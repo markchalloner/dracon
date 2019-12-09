@@ -5,6 +5,10 @@ proto_library(
         "engine.proto",
         "issue.proto",
     ],
+    languages = [
+        "go",
+        "py",
+    ],
     visibility = ["PUBLIC"],
     deps = ["//third_party/proto:protoc"],
 )
