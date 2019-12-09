@@ -1,43 +1,44 @@
 package consumers
 
 import (
+	"io/ioutil"
 	"log"
+	"os"
+	"path"
+	"testing"
+	"time"
 
-	"github.com/golang/protobuf/ptypes"
+	"github.com/stretchr/testify/assert"
+	v1 "github.com/thought-machine/dracon/pkg/genproto/v1"
+	"github.com/thought-machine/dracon/pkg/putil"
 )
 
-func ExampleParseFlags() {
-	if err := ParseFlags(); err != nil {
-		log.Fatal(err)
+func TestLoadToolResponse(t *testing.T) {
+	tmpDir, err := ioutil.TempDir("", "dracon-test")
+	assert.Nil(t, err)
+	tmpFile, err := ioutil.TempFile(tmpDir, "dracon-test-*.pb")
+	assert.Nil(t, err)
+	defer os.Remove(tmpFile.Name())
+	issues := []*v1.Issue{
+		&v1.Issue{
+			Target:      "/dracon/source/foobar",
+			Title:       "/dracon/source/barfoo",
+			Description: "/dracon/source/example.yaml",
+		},
 	}
-}
+	err = putil.WriteResults("test-tool", issues, tmpFile.Name())
+	assert.Nil(t, err)
 
-func ExampleLoadToolResponse() {
-	responses, err := LoadToolResponse()
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, res := range responses {
-		scanStartTime, _ := ptypes.Timestamp(res.GetScanInfo().GetScanStartTime())
-		_ = scanStartTime
-		for _, iss := range res.GetIssues() {
-			// Do your own logic with issues here
-			_ = iss
-		}
-	}
-}
+	log.Println(tmpDir)
+	inResults = path.Dir(tmpDir)
 
-func ExampleLoadEnrichedToolResponse() {
-	responses, err := LoadEnrichedToolResponse()
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, res := range responses {
-		scanStartTime, _ := ptypes.Timestamp(res.GetOriginalResults().GetScanInfo().GetScanStartTime())
-		_ = scanStartTime
-		for _, iss := range res.GetIssues() {
-			// Do your own logic with issues here
-			_ = iss
-		}
-	}
+	draconStartTime := time.Now().UTC()
+	os.Setenv(EnvDraconStartTime, draconStartTime.Format(time.RFC3339))
+	os.Setenv(EnvDraconScanID, "test-id")
+	toolRes, err := LoadToolResponse()
+	assert.Nil(t, err)
+	log.Println(toolRes)
+
+	assert.Equal(t, "test-tool", toolRes[0].GetToolName())
+	assert.Equal(t, "test-id", toolRes[0].GetScanInfo().GetScanUuid())
 }

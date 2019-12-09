@@ -13,6 +13,13 @@ import (
 	"github.com/thought-machine/dracon/pkg/putil"
 )
 
+const (
+	// EnvDraconStartTime Start Time of Dracon Scan in RFC3339
+	EnvDraconStartTime = "DRACON_SCAN_TIME"
+	// EnvDraconScanID the ID of the dracon scan
+	EnvDraconScanID = "DRACON_SCAN_ID"
+)
+
 var (
 	inResults string
 	// Raw represents if the non-enriched results should be used
@@ -66,7 +73,7 @@ func LoadEnrichedToolResponse() ([]*v1.EnrichedLaunchToolResponse, error) {
 }
 
 func getScanInfo() (*v1.ScanInfo, error) {
-	t, err := time.Parse(time.RFC3339, os.Getenv("DRACON_SCAN_TIME"))
+	t, err := time.Parse(time.RFC3339, os.Getenv(EnvDraconStartTime))
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +82,7 @@ func getScanInfo() (*v1.ScanInfo, error) {
 		return nil, err
 	}
 	return &v1.ScanInfo{
-		ScanUuid:      os.Getenv("DRACON_SCAN_ID"),
+		ScanUuid:      os.Getenv(EnvDraconScanID),
 		ScanStartTime: tp,
 	}, nil
 }
