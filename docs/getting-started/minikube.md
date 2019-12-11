@@ -27,8 +27,7 @@ $ kubectl apply --context minikube --namespace dracon -f resources/persistence/m
 $ kubectl apply --context minikube --namespace dracon -f resources/persistence/elasticsearch-kibana/elasticsearch.yaml
 $ kubectl apply --context minikube --namespace dracon -f resources/persistence/elasticsearch-kibana/kibana.yaml
 ```
-6. Dracon is now ready to use
-
+6. Dracon is now ready to use. Check out the [Running Demos Guide](/docs/getting-started/tutorials/running-demos.md)
 
 ## Usage
 
@@ -50,4 +49,13 @@ $ dracon setup --pipeline examples/pipelines/golang-project
 To run that example pipeline you can execute:
 ```bash
 $ dracon run --pipeline examples/pipelines/golang-project
+```
+
+### Inspecting a Pipeline
+To see the progress of a Pipeline, you can execute:
+```bash
+# To see the pipeline status
+$ kubectl get piplineruns
+# To see the pods running as part of the pipeline
+$ kubectl get pod -w
 ```

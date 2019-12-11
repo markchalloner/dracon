@@ -3,7 +3,7 @@
 apiVersion: dracon/v1alpha1
 kind: PipelineResource
 metadata:
-  name: "{{.RunID}}-git-github-thoughtmachine-please"
+  name: "{{.RunID}}-git-github-uber-zap"
   labels: {}
 spec:
   type: git
@@ -24,7 +24,7 @@ spec:
   pipelineRef: {name: golang-project}
   params: []
   podTemplate: {}
-  # serviceAccount: git-github-thoughtmachine-please # replace with desired git source service account (if needed)
+  # serviceAccount: git-github-uber-zap # replace with desired git source service account (if needed)
   resources:
-  - {name: git-source, resourceRef: {name: "{{.RunID}}-git-github-thoughtmachine-please"}} # replace with desired git source
+  - {name: git-source, resourceRef: {name: "{{.RunID}}-git-github-uber-zap"}} # replace with desired git source
   timeout: 1h0m0s
