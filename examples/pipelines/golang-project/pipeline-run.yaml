@@ -3,7 +3,7 @@
 apiVersion: dracon/v1alpha1
 kind: PipelineResource
 metadata:
-  name: "{{.RunID}}-git-github-uber-zap"
+  name: "{{.RunID}}-git-github-oauth2-proxy"
   labels: {}
 spec:
   type: git
@@ -11,7 +11,7 @@ spec:
   - name: revision
     value: master
   - name: url
-    value: https://github.com/uber-go/zap.git
+    value: https://github.com/pusher/oauth2_proxy.git
 ---
 # pipelinerun
 apiVersion: dracon/v1alpha1
@@ -24,7 +24,7 @@ spec:
   pipelineRef: {name: golang-project}
   params: []
   podTemplate: {}
-  # serviceAccount: git-github-uber-zap # replace with desired git source service account (if needed)
+  # serviceAccount: git-github-oauth2-proxy # replace with desired git source service account (if needed)
   resources:
-  - {name: git-source, resourceRef: {name: "{{.RunID}}-git-github-uber-zap"}} # replace with desired git source
+  - {name: git-source, resourceRef: {name: "{{.RunID}}-git-github-oauth2-proxy"}} # replace with desired git source
   timeout: 1h0m0s
