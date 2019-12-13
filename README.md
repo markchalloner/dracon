@@ -12,15 +12,15 @@ We have a tutorial for [Getting started in Minikube](docs/getting-started/miniku
 
 We also have tutorials for
 
-| Name                                                     | Description                                                |
-| -------------------------------------------------------- | ---------------------------------------------------------- |
-| [Minikube Tutorial][tut-minikube]                        | Beginner guite to getting started with Darcon              |
-| [Running our demo pipeline][tut-running-demos]           | End to end demo of running an example pipeline             |
-| [Creating your own pipeline][tut-own-pipeline]           | How to create your own custom dracon pipeline              |
-| [Creating your own producer][tut-own-producer]           | Extending Dracon by creating your own custom producer      |
-| [Creating your own consumer][tut-own-consumer]           | Extending Dracon by creating your own custom consumer      |
-| [Example of using a public git repo ][tut-public-repo]   | Example of running dracon against a public git repository  |
-| [Example of using a private git repo ][tut-private-repo] | Example of running dracon against a private git repository |
+| Name                                                    | Description                                                |
+| ------------------------------------------------------- | ---------------------------------------------------------- |
+| [Minikube Tutorial][tut-minikube]                       | Beginner guite to getting started with Darcon              |
+| [Running our demo pipeline][tut-running-demos]          | End to end demo of running an example pipeline             |
+| [Example of using a public git repo][tut-public-repo]   | Example of running dracon against a public git repository  |
+| [Example of using a private git repo][tut-private-repo] | Example of running dracon against a private git repository |
+| [Creating your own pipeline][tut-own-pipeline]          | WIP: How to create your own custom dracon pipeline         |
+| [Creating your own producer][tut-own-producer]          | WIP: Extending Dracon by creating your own custom producer |
+| [Creating your own consumer][tut-own-consumer]          | WIP: Extending Dracon by creating your own custom consumer |
 
 # Support
 
