@@ -24,7 +24,7 @@ We also have tutorials for
 
 ## Announcements
 
-Dracon was announced at OWASP Appsec Amsterdam in 2019. Check out [the slides](docs/Dracon-OWASP-Presentation-export.pdf)
+Dracon was announced at OWASP Appsec Amsterdam in 2019. Check out [the slides](docs/presentations/Dracon-OWASP-Presentation-export.pdf)
 from the presentation.
 
 # Support
