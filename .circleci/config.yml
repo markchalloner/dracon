@@ -1,0 +1,39 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: thoughtmachine/please_ubuntu:20200226
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: ./pleasew build
+  test:
+    docker:
+      - image: thoughtmachine/please_ubuntu:20200226
+    resource_class: large
+    steps:
+      - checkout
+      - test:
+          name: Test
+          command: ./pleasew test
+  lint:
+    docker:
+      - image: thoughtmachine/please_ubuntu:20200226
+    steps:
+      - checkout
+      - run:
+          name: Lint
+          command: ./pleasew lint
+
+workflows:
+  version: 2
+  build-all:
+    jobs:
+      - build
+      - test
+      - lint:
+          filters:
+            branches:
+              ignore: master
